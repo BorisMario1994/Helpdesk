@@ -1,0 +1,94 @@
+/* @import "tailwindcss/preflight";
+@import "tailwindcss/utilities"; */
+/*
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*/
+
+@import "tailwindcss";
+
+@font-face {
+  font-family: Roboto;
+  src: url('./assets/fonts/Roboto-Regular.ttf');
+}
+
+@font-face {
+  font-family: Open-Sans;
+  src: url('./assets/fonts/OpenSans-Regular.ttf');
+}
+
+
+:root {
+  --font-roboto: Roboto, sans-serif;
+  --font-open-sans: "Open-Sans", sans-serif;
+}
+
+body {
+  font-family: var(--font-open-sans), sans-serif;
+}
+
+@layer utilities {
+  @keyframes bg-pulse {
+    0%, 100% { 
+      background-color: transparent; 
+      color: #ef4444; 
+    }
+    50% { 
+      background-color: #ef4444;
+      color: white; 
+    }
+  }
+      
+  .animate-bg-pulse {
+    animation: bg-pulse 1.5s ease-in-out infinite;
+  }
+    
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  .tippy-box[data-theme~='mention'] {
+    @apply bg-white border border-gray-300 rounded-lg shadow-lg p-2 max-h-48 overflow-y-auto text-sm;
+  }
+
+  .tippy-box[data-theme~='mention'][data-placement^='top'] > .tippy-arrow::before {
+    border-top-color: theme('colors.white');
+  }
+
+  .tippy-box[data-theme~='mention'][data-placement^='bottom'] > .tippy-arrow::before {
+    border-bottom-color: theme('colors.white');
+  }
+
+  .tippy-box[data-theme~='mention'] > .tippy-arrow {
+    color: theme('colors.white');
+  }
+}
+
+button {
+  cursor: pointer;
+}
+
+pre {
+  font-family: "Open-Sans";
+}
+
+.ProseMirror {
+  @apply w-full min-h-full px-2 py-1 text-sm rounded-md outline-none focus:bg-red-100;
+  /* or use plain CSS instead of @apply if needed */
+}
+
+.ProseMirror p.is-empty::before {
+  content: attr(data-placeholder);
+  color: theme("colors.gray.400");
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

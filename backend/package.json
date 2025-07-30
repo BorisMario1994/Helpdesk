@@ -1,0 +1,51 @@
+{
+  "name": "helpdesk",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon - exec 'ts-node' src/index.ts",
+    "build": "tsc",
+    "start": "pm2 start dist/index.js --name helpdesk-backend",
+    "stop": "pm2 stop helpdesk-backend",
+    "remove": "pm2 delete helpdesk-backend"
+  },
+  "keywords": [
+    "helpdesk",
+    "backend"
+  ],
+  "author": "ISW",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.12",
+    "dotenv": "^16.4.7",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.8.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
+    "compression": "^1.8.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.2",
+    "pm2": "^6.0.8"
+  }
+}

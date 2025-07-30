@@ -1,0 +1,290 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model HelpdeskAktiva {
+  KodeAktiva             String                 @id(map: "PK__Helpdesk__615A54A6330B8BE7") @db.VarChar(20)
+  HardwareCode           String                 @db.VarChar(10)
+  TanggalPembelian       DateTime               @db.DateTime
+  BatasGaransi           DateTime               @db.DateTime
+  Descrption             String                 @db.VarChar(256)
+  Merk                   String                 @db.VarChar(256)
+  Remarks                String                 @db.Text
+  TanggalAfkir           DateTime               @db.DateTime
+  HelpdeskHardwareMaster HelpdeskHardwareMaster @relation(fields: [HardwareCode], references: [Code], onDelete: Cascade, map: "FK__HelpdeskAktiva__HelpdeskHardwareMaster")
+}
+
+model HelpdeskBagian {
+  Code            String  @id(map: "PK__Helpdesk__A25C5AA62BC95EBB") @db.VarChar(10)
+  Descrption      String  @db.VarChar(256)
+  IsActive        String  @db.Char(1)
+  UpperBagianCode String? @db.VarChar(10)
+}
+
+model HelpdeskCc {
+  Nomor          String         @db.VarChar(20)
+  LineNum        Int
+  CC             String         @db.VarChar(10)
+  AC             String         @db.VarChar(20)
+  TanggalAc      DateTime       @db.DateTime
+  PIC            String         @db.VarChar(10)
+  NamaFile       String         @db.VarChar(256)
+  HelpdeskHeader HelpdeskHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskCc__HelpdeskHeader")
+
+  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D002E1986441")
+}
+
+model HelpdeskDetails {
+  Nomor              String               @db.VarChar(20)
+  LineNum            Int
+  Order              String               @db.VarChar(20)
+  Jumlah             Float
+  Keterangan         String               @db.Text
+  Status             String               @db.VarChar(20)
+  PIC                String               @db.VarChar(10)
+  Remarks            String               @db.Text
+  TanggalTerima      DateTime             @db.DateTime
+  TS                 DateTime             @db.DateTime
+  TanggalSelesai     DateTime             @db.DateTime
+  NoAktiva           String               @db.VarChar(256)
+  PrintKe            Int                  @default(0, map: "DF__HelpdeskD__Print__2101D846")
+  HelpdeskHeader     HelpdeskHeader       @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskDetails__HelpdeskHeader")
+  HelpdeskNoteJobReg HelpdeskNoteJobReg[]
+
+  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D002F1FB50FB")
+}
+
+model HelpdeskHardwareMaster {
+  Code           String           @id(map: "PK__Helpdesk__A25C5AA6B32B93B6") @db.VarChar(10)
+  Descrption     String           @db.VarChar(256)
+  IsActive       String           @db.Char(1)
+  HelpdeskAktiva HelpdeskAktiva[]
+}
+
+model HelpdeskHeader {
+  Nomor           String            @id(map: "PK__Helpdesk__2DF24DF5EC53E58E") @db.VarChar(20)
+  Title           String            @db.Text
+  Tipe            String            @db.VarChar(20)
+  Prioritas       String            @db.VarChar(20)
+  Dari            String            @db.VarChar(10)
+  Kepada          String            @db.VarChar(10)
+  Status          String            @db.VarChar(20)
+  Pertimbangan    String            @db.Text
+  NamaFile        String            @db.VarChar(256)
+  NamaFileKepada  String            @db.VarChar(256)
+  TanggalTerbit   DateTime          @db.DateTime
+  TanggalTerima   DateTime          @db.DateTime
+  TanggalSelesai  DateTime          @db.DateTime
+  HelpdeskCc      HelpdeskCc[]
+  HelpdeskDetails HelpdeskDetails[]
+  HelpdeskNote    HelpdeskNote[]
+  HelpdeskNotif   HelpdeskNotif[]
+}
+
+model HelpdeskNote {
+  Nomor          String         @db.VarChar(20)
+  LineNum        Int
+  Tanggal        DateTime       @db.DateTime
+  Username       String         @db.VarChar(10)
+  Comment        String         @db.Text
+  Mentions       String         @db.Text
+  HelpdeskHeader HelpdeskHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskNote__HelpdeskHeader")
+
+  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D002EED80BD6")
+}
+
+model HelpdeskNotif {
+  Nomor          String         @db.VarChar(20)
+  Username       String         @db.VarChar(10)
+  Action         String         @db.VarChar(20)
+  HelpdeskHeader HelpdeskHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskNotif__HelpdeskHeader")
+
+  @@id([Nomor, Username], map: "PK__Helpdesk__68C485AB806D22D7")
+}
+
+model HelpdeskOrderMaster {
+  Code       String @id(map: "PK__Helpdesk__A25C5AA68923ED7F") @db.VarChar(10)
+  Descrption String @db.VarChar(256)
+  IsActive   String @db.Char(1)
+}
+
+model HelpdeskUser {
+  Username           String         @id(map: "PK__Helpdesk__536C85E50269A580") @db.VarChar(10)
+  Pwd                Bytes          @db.VarBinary(256)
+  Salt               String         @db.VarChar(20)
+  Lvl                String         @db.VarChar(10)
+  IsActive           String         @db.Char(1)
+  Superior           String?        @db.VarChar(10)
+  HelpdeskUser       HelpdeskUser?  @relation("HelpdeskUserToHelpdeskUser", fields: [Superior], references: [Username], onDelete: NoAction, onUpdate: NoAction, map: "FK__HelpdeskUser__Superior")
+  other_HelpdeskUser HelpdeskUser[] @relation("HelpdeskUserToHelpdeskUser")
+}
+
+model PkpMasterMasalah {
+  Code     Int    @id(map: "PK__PkpMaste__A25C5AA6DFD6FD9C")
+  Masalah  String @db.VarChar(256)
+  IsActive String @db.VarChar(1)
+}
+
+model SkmCc {
+  Nomor     String    @db.VarChar(10)
+  Phase     Int
+  LineNum   Int
+  CC        String    @db.VarChar(10)
+  AC        String    @db.VarChar(10)
+  TanggalAc DateTime  @db.DateTime
+  PIC       String    @db.VarChar(10)
+  NamaFile  String    @db.VarChar(256)
+  SkmHeader SkmHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__SkmCc__SkmHeader")
+
+  @@id([Nomor, Phase, LineNum], map: "PK__SkmCc__81528DE8360E315F")
+}
+
+model SkmDetails {
+  Nomor     String    @db.VarChar(10)
+  LineNum   Int
+  ItemCode  String    @db.VarChar(256)
+  ItemName  String    @db.VarChar(256)
+  Keluhan   String    @db.Text
+  SkmHeader SkmHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__SkmDetails__SkmHeader")
+
+  @@id([Nomor, LineNum], map: "PK__SkmDetai__BAE0D002076C489F")
+}
+
+model SkmHeader {
+  Nomor          String          @id(map: "PK__SkmHeade__2DF24DF53F20C41C") @db.VarChar(10)
+  NoReferensi    String          @db.VarChar(256)
+  Jenis          String          @db.VarChar(20)
+  Lingkup        String          @db.VarChar(20)
+  Kategori       String          @db.VarChar(50)
+  Dari           String          @db.VarChar(10)
+  CardCode       String          @db.VarChar(10)
+  CardName       String          @db.VarChar(256)
+  Status         String          @db.VarChar(20)
+  NamaFile       String          @db.VarChar(256)
+  TanggalBuka    DateTime        @db.DateTime
+  TanggalTerbit  DateTime        @db.DateTime
+  TanggalTerima  DateTime        @db.DateTime
+  TanggalExpired DateTime        @db.DateTime
+  TanggalSelesai DateTime        @db.DateTime
+  SkmCc          SkmCc[]
+  SkmDetails     SkmDetails[]
+  SkmPenanganan  SkmPenanganan[]
+}
+
+model SkmPenanganan {
+  Nomor                    String            @db.VarChar(10)
+  LineNum                  Int
+  Bagian                   String            @db.VarChar(10)
+  AL                       String            @db.VarChar(10)
+  AAL                      String            @db.VarChar(10)
+  Penyebab                 String            @db.Text
+  Koreksi                  String            @db.Text
+  Pencegahan               String            @db.Text
+  TS_Koreksi               DateTime          @db.DateTime
+  TS_Pencegahan_Applied    DateTime          @db.DateTime
+  TS_Pencegahan_Verified   DateTime          @db.DateTime
+  StatusApplied            String            @db.VarChar(20)
+  StatusVerified           String            @db.VarChar(20)
+  TanggalTerima            DateTime          @db.DateTime
+  TanggalKembali           DateTime          @db.DateTime
+  TanggalSelesai           DateTime          @db.DateTime
+  PIC                      String            @db.VarChar(10)
+  NamaFile                 String            @db.VarChar(256)
+  KeteranganInfoKeSupplier String            @db.Text
+  AlasanPerpanjanganTS     String            @db.Text
+  ClosingEvidence          String            @db.Text
+  ProgressUpdate           String            @db.Text
+  HasilVerifikasi          String            @db.Text
+  SkmHeader                SkmHeader         @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__SkmPenanganan__SkmHeader")
+  SkmVerification          SkmVerification[]
+
+  @@id([Nomor, LineNum], map: "PK__SkmPenan__BAE0D0028349FCA2")
+}
+
+model SkmVerification {
+  Nomor             String        @db.VarChar(10)
+  LineNumPenanganan Int
+  Phase             Int
+  LineNum           Int
+  Verificator       String        @db.VarChar(10)
+  Bagian            String        @db.VarChar(10)
+  Verified          String        @db.VarChar(10)
+  TanggalVerif      DateTime      @db.DateTime
+  NamaFile          String        @db.VarChar(256)
+  SkmPenanganan     SkmPenanganan @relation(fields: [Nomor, LineNumPenanganan], references: [Nomor, LineNum], onDelete: Cascade, map: "FK__SkmVerification__SkmPenanganan")
+
+  @@id([Nomor, LineNumPenanganan, LineNum], map: "PK__SkmVerif__EB99A7F41D11F4B4")
+}
+
+model HelpdeskNoteJobReg {
+  Nomor           String          @db.VarChar(20)
+  LineNumDetails  Int
+  LineNum         Int
+  Tanggal         DateTime        @db.DateTime
+  Username        String          @db.VarChar(10)
+  Comment         String          @db.Text
+  HelpdeskDetails HelpdeskDetails @relation(fields: [Nomor, LineNumDetails], references: [Nomor, LineNum], onDelete: Cascade, map: "FK_HelpdeskNoteJobReg_HelpdeskDetails")
+
+  @@id([Nomor, LineNumDetails, LineNum], map: "PK__Helpdesk__33F2203A34ABE4D5")
+}
+
+model BpbCc {
+  Nomor     String    @db.VarChar(20)
+  LineNum   Int
+  CC        String    @db.VarChar(10)
+  AC        String    @db.VarChar(20)
+  TanggalAC DateTime  @db.DateTime
+  PIC       String    @db.VarChar(10)
+  NamaFile  String    @db.VarChar(256)
+  BpbHeader BpbHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__BpbCc__BpbHeader")
+
+  @@id([Nomor, LineNum], map: "PK__BpbCc__BAE0D00209766F07")
+}
+
+model BpbDetails {
+  Nomor        String    @db.VarChar(20)
+  LineNum      Int
+  Qty          Float
+  Satuan       String    @db.VarChar(100)
+  Nama         String    @db.Text
+  WajibKembali String    @db.Char(1)
+  TS_Kembali   DateTime  @db.DateTime
+  BpbHeader    BpbHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__BpbDetails__BpbHeader")
+
+  @@id([Nomor, LineNum], map: "PK__BpbDetai__BAE0D002753C7F9E")
+}
+
+model BpbHeader {
+  Nomor          String       @id(map: "PK__BpbHeade__2DF24DF5090CC23C") @db.VarChar(20)
+  Dari           String       @db.VarChar(10)
+  CardCode       String       @db.VarChar(20)
+  Kepada         String       @db.Text
+  Keterangan     String       @db.Text
+  Ref            String       @db.Text
+  Status         String       @db.VarChar(20)
+  TanggalTerbit  DateTime     @db.DateTime
+  TanggalSelesai DateTime     @db.DateTime
+  NamaFile       String       @db.VarChar(256)
+  BpbCc          BpbCc[]
+  BpbDetails     BpbDetails[]
+  BpbNote        BpbNote[]
+}
+
+model BpbNote {
+  Nomor     String    @db.VarChar(20)
+  LineNum   Int
+  Tanggal   DateTime  @db.DateTime
+  Username  String    @db.VarChar(10)
+  Comment   String    @db.Text
+  Mentions  String    @db.Text
+  BpbHeader BpbHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__BpbNote__BpbHeader")
+
+  @@id([Nomor, LineNum], map: "PK__BpbNote__BAE0D00216DCF543")
+}

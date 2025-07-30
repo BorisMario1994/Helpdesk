@@ -1,0 +1,132 @@
+import { faCheckCircle, faFile, faFileCircleXmark, faFileExcel, faFileImage, faFilePdf, faFileWord, faFileZipper, faHourglassHalf, faRotateLeft, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { formatInTimeZone } from "date-fns-tz";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../AuthProvider";
+import { ButtonLayout } from "../common/ButtonLayout";
+import { InputFieldLayout } from "../common/InputFieldLayout";
+import BagianMaster from "../../models/master/BagianMaster";
+import BpbCc from "../../models/bpb/BpbCc";
+
+type Props = {
+  cc: BpbCc;
+  bagianList: BagianMaster[];
+  setCc?: (linenum: number, cc: BpbCc) => void;
+  removeCc?: (linenum: number) => void;
+  downloadFile?: (filename: string) => Promise<void>;
+  existing?: boolean;
+  canGiveFeedback?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
+  canReject?: boolean;
+  canRequestReview?: boolean;
+  showToast?: (message: string) => void;
+};
+
+export function BpbCcLayout({ cc, bagianList, setCc = (_: number, __: BpbCc) => {  }, removeCc = (_: number) => {  }, downloadFile = async (_: string) => {  }, existing = true, canGiveFeedback = false, canUpdate = false, canDelete = false, canReject = false, canRequestReview = false, showToast = (_: string) => {  } }: Props) {
+  const auth = useAuth();
+  const ccDetailsDrawer = useRef<HTMLDivElement>(null);
+  const [ccDetailsDrawerOpen, setCcDetailsDrawerOpen] = useState(false);
+  const [ccDetailsDrawerMaxHeight, setCcDetailsDrawerMaxHeight] = useState("0px");
+
+  const [selectedCc, setSelectedCc] = useState(cc.cc.length > 0 ? cc.cc : "Choose approver");
+  const [selectedAc, setSelectedAc] = useState(cc.ac);
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(cc.namaFile.length > 0 ? new File([], cc.namaFile) : undefined);
+  const uploadFileInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const updatedCc = new BpbCc(cc.linenum, selectedCc === "Choose approver" ? "" : selectedCc, selectedAc, cc.tanggalAc, cc.pic, selectedFile ?? new File([], ""), selectedFile && selectedFile.size > 0 ? selectedFile.name : (selectedFile?.name.length || 0) > 0 ? cc.namaFile : "");
+    setCc(cc.linenum, updatedCc);
+  }, [selectedCc, selectedAc, selectedFile]);
+
+  useEffect(() => {
+    setCcDetailsDrawerMaxHeight(ccDetailsDrawer.current && ccDetailsDrawerOpen ? `${ccDetailsDrawer.current.scrollHeight + 200}px` : "0px");
+  }, [ccDetailsDrawerOpen]);
+
+  useEffect(() => {
+    if (canUpdate || cc.ac === "REVISION")
+      setCcDetailsDrawerOpen(true);
+  }, [canUpdate]);
+
+  const uploadDownloadFileButtonClicked = () => {
+    if (canUpdate)
+      uploadFileInput.current?.click();
+    else
+      downloadFile(cc.namaFile);
+  };
+
+  const fileChosen = async() => {
+    if (uploadFileInput.current?.files && uploadFileInput.current.files.length > 0) {
+      if (!["pdf", "zip", "png", "jpg", "jpeg", "doc", "docx", "xls", "xlsx", "ods", "odt"].includes(uploadFileInput.current.files[0].name.substring(uploadFileInput.current.files[0].name.lastIndexOf(".") + 1))) {
+        showToast("Uploaded file not supported. Please only upload the following file type: pdf, zip, png, jpg, jpeg, doc, docx, xls, xlsx, ods, and odt.");
+        return;
+      }
+      setSelectedFile(uploadFileInput.current?.files[0]);
+    }
+  };
+
+  const removeUploadedFile = () => {
+    setSelectedFile(undefined);
+    if (uploadFileInput.current)
+      uploadFileInput.current.value = "";
+  };
+
+  return existing ?
+  (
+    <div className="relative flex flex-col p-2 border border-gray-500 rounded-lg text-sm">
+      <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCcDetailsDrawerOpen(!ccDetailsDrawerOpen)}>
+        <p className="shrink-0 text-gray-500">{`Approver ${cc.linenum + 1}`}:</p>
+        <p className="font-semibold">{cc.cc.concat((bagianList.find(ccFind => ccFind.code === cc.cc)?.descrption.length || 0) > 0 ? (" - " + bagianList.find(ccFind => ccFind.code === cc.cc)?.descrption) : "")}</p>
+        <div className="flex space-x-2 ml-auto">
+          <span className={`w-8 text-center ${cc.ac === "APPROVE" ? "text-green-700" : cc.ac === "REVISION" ? "text-yellow-500" : cc.ac === "REJECT" ? "text-red-500" : "text-gray-700"}`}><FontAwesomeIcon icon={cc.ac === "APPROVE" ? faCheckCircle : cc.ac === "REVISION" ? faRotateLeft : cc.ac === "REJECT" ? faXmarkCircle : faHourglassHalf} size="lg" /></span>
+          <div className={`text-sm ${!canDelete && "hidden"}`}>
+            <ButtonLayout text="Remove" type="text" colorClass="red-500" onClick={() => removeCc(cc.linenum)} />
+          </div>
+        </div>
+      </div>
+      <div className={`${!canUpdate && "hidden"} absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 rounded-full`}></div>
+      <div ref={ccDetailsDrawer} className={`transition-all duration-300 ease-in-out overflow-hidden ${ccDetailsDrawerOpen ? "opacity-100" : "opacity-0"}`} style={{ maxHeight: ccDetailsDrawerMaxHeight }}>
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-sm text-gray-500">Feedback</p>
+          <p className={`${canGiveFeedback ? "hidden" : ""} text-sm ${cc.ac === "APPROVE" ? "text-green-700" : cc.ac === "REVISION" ? "text-yellow-500" : cc.ac === "REJECT" ? "text-red-500" : "text-gray-800"} font-semibold`}>{cc.ac}</p>
+          <InputFieldLayout id="feedbackInput" type="select" options={["APPROVE", "REVISION"].concat(canReject ? ["REJECT"] : []).concat(canRequestReview ? ["REQUESTING REVIEW"] : []).concat(auth.scope?.inferior || [])} value={selectedAc} onSelectChange={setSelectedAc} additionalClass={`${canGiveFeedback ? "w-48" : "hidden"}`} />
+        </div>
+        <div className="flex justify-between mt-2">
+          <p className="text-sm text-gray-500">Feedback Date</p>
+          <p className="text-sm font-semibold">{cc.tanggalAc.getFullYear() === 1900 ? "-" : formatInTimeZone(cc.tanggalAc, "Asia/Jakarta", "EEEE, d MMMM yyyy HH:mm:ss")}</p>
+        </div>
+        <div className="flex justify-between mt-2">
+          <p className="text-sm text-gray-500">PIC</p>
+          <p className="text-sm font-semibold">{cc.pic.length > 0 ? cc.pic : "-"}</p>
+        </div>
+        <div className="flex flex-col justify-between mt-2">
+          <p className="text-sm text-gray-500">Approver's Attachment</p>
+          <div className="flex items-center mt-1">
+            <span className="text-gray-500 mr-2"><FontAwesomeIcon icon={!selectedFile ? faFileCircleXmark : selectedFile.name.substring(selectedFile.name.lastIndexOf(".") + 1) === "pdf" ? faFilePdf : ["xls", "xlsx", "ods"].includes(selectedFile.name.substring(selectedFile.name.lastIndexOf(".") + 1) || "") ? faFileExcel : ["doc", "docx", "odt"].includes(selectedFile.name.substring(selectedFile.name.lastIndexOf(".") + 1) || "") ? faFileWord : ["png", "jpg", "jpeg"].includes(selectedFile.name.substring(selectedFile.name.lastIndexOf(".") + 1) || "") ? faFileImage : selectedFile.name.substring(selectedFile.name.lastIndexOf(".") + 1) === "zip" ? faFileZipper : faFile} size="lg" /></span>
+            <p className="text-sm self-center">{selectedFile && selectedFile.name.length > 0 ? cc.namaFile : "No file attached." }</p>
+            <div className={`flex shrink-0 ml-auto space-x-3 ${canUpdate || (!canUpdate && selectedFile && selectedFile.name.length > 0) ? "" : "hidden"}`}>
+              <div className={`${!(canUpdate && selectedFile) && "hidden"}`}>
+                <ButtonLayout text="Remove" type="text" colorClass="red-500" onClick={removeUploadedFile} />
+              </div>
+              <div>
+                <ButtonLayout text={`${canUpdate ? "Upload" : "Download"}`} type="text" colorClass="green-700" onClick={uploadDownloadFileButtonClicked} />
+              </div>
+            </div>
+            <InputFieldLayout ref={uploadFileInput} id="uploadFile" type="file" onInputChange={fileChosen} additionalClass="hidden" />
+          </div>
+        </div>
+      </div>
+    </div>
+  ) :
+  (
+    <div className="w-full flex justify-between items-center gap-2 text-sm overflow-hidden">
+      <p className="shrink-0 text-gray-500 text-nowrap">{`Approver ${cc.linenum + 1}`}</p>
+      <div className="grow-1 overflow-hidden">
+        <InputFieldLayout type="select" id={`selectCc${cc.linenum}`} options={bagianList.filter(bagian => bagian.isActive).map(bagian => `${bagian.code}${bagian.descrption.length > 0 ? (" - " + bagian.descrption) : ""}`)} value={selectedCc} enabled={canUpdate} onSelectChange={setSelectedCc} additionalClass="w-full" />
+      </div>
+      <div className={`shrink-0 ${!canDelete && "hidden"}`}>
+        <ButtonLayout text="Remove" type="text" colorClass="red-500" onClick={() => removeCc(cc.linenum)} />
+      </div>
+    </div>
+  );
+};
