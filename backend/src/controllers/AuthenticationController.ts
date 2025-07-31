@@ -24,7 +24,7 @@ const generateAccessToken = (payload: TokenPayload) => {
 
 // Function to generate new refresh token. 
 const generateRefreshToken = (payload: TokenPayload) => {
-  let generatedSignOptions: SignOptions = { ...signOptions, subject: payload.user.username, expiresIn: "1d" };
+  let generatedSignOptions: SignOptions = { ...signOptions, subject: payload.user.username, expiresIn: "8h" };
   return jwt.sign(payload, pvt, generatedSignOptions);
 };
 
