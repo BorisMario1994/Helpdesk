@@ -10,7 +10,7 @@ datasource db {
 }
 
 model HelpdeskAktiva {
-  KodeAktiva             String                 @id(map: "PK__Helpdesk__615A54A6330B8BE7") @db.VarChar(20)
+  KodeAktiva             String                 @id(map: "PK__Helpdesk__615A54A6803EFDFA") @db.VarChar(20)
   HardwareCode           String                 @db.VarChar(10)
   TanggalPembelian       DateTime               @db.DateTime
   BatasGaransi           DateTime               @db.DateTime
@@ -22,10 +22,12 @@ model HelpdeskAktiva {
 }
 
 model HelpdeskBagian {
-  Code            String  @id(map: "PK__Helpdesk__A25C5AA62BC95EBB") @db.VarChar(10)
-  Descrption      String  @db.VarChar(256)
-  IsActive        String  @db.Char(1)
-  UpperBagianCode String? @db.VarChar(10)
+  Code                 String           @id(map: "PK__Helpdesk__A25C5AA686BAD0B6") @db.VarChar(10)
+  Descrption           String           @db.VarChar(256)
+  IsActive             String           @default("Y", map: "DF__HelpdeskB__IsAct__43F60EC8") @db.Char(1)
+  UpperBagianCode      String?          @db.VarChar(10)
+  HelpdeskBagian       HelpdeskBagian?  @relation("HelpdeskBagianToHelpdeskBagian", fields: [UpperBagianCode], references: [Code], onDelete: NoAction, onUpdate: NoAction, map: "FK_Bagian_UpperBagian")
+  other_HelpdeskBagian HelpdeskBagian[] @relation("HelpdeskBagianToHelpdeskBagian")
 }
 
 model HelpdeskCc {
@@ -38,7 +40,7 @@ model HelpdeskCc {
   NamaFile       String         @db.VarChar(256)
   HelpdeskHeader HelpdeskHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskCc__HelpdeskHeader")
 
-  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D002E1986441")
+  @@id([Nomor, LineNum], map: "PK__Helpdesk__FAC0AB61D1B154B7")
 }
 
 model HelpdeskDetails {
@@ -53,23 +55,23 @@ model HelpdeskDetails {
   TanggalTerima      DateTime             @db.DateTime
   TS                 DateTime             @db.DateTime
   TanggalSelesai     DateTime             @db.DateTime
-  NoAktiva           String               @db.VarChar(256)
-  PrintKe            Int                  @default(0, map: "DF__HelpdeskD__Print__2101D846")
+  NoAktiva           String               @db.VarChar(20)
+  PrintKe            Int                  @default(0, map: "DF__HelpdeskD__Print__30AE302A")
   HelpdeskHeader     HelpdeskHeader       @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskDetails__HelpdeskHeader")
   HelpdeskNoteJobReg HelpdeskNoteJobReg[]
 
-  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D002F1FB50FB")
+  @@id([Nomor, LineNum], map: "PK__Helpdesk__FAC0AB614DD66B52")
 }
 
 model HelpdeskHardwareMaster {
-  Code           String           @id(map: "PK__Helpdesk__A25C5AA6B32B93B6") @db.VarChar(10)
+  Code           String           @id(map: "PK__Helpdesk__A25C5AA63C5A72E2") @db.VarChar(10)
   Descrption     String           @db.VarChar(256)
   IsActive       String           @db.Char(1)
   HelpdeskAktiva HelpdeskAktiva[]
 }
 
 model HelpdeskHeader {
-  Nomor           String            @id(map: "PK__Helpdesk__2DF24DF5EC53E58E") @db.VarChar(20)
+  Nomor           String            @id(map: "PK__Helpdesk__05A5886BFE460DBF") @db.VarChar(20)
   Title           String            @db.Text
   Tipe            String            @db.VarChar(20)
   Prioritas       String            @db.VarChar(20)
@@ -97,7 +99,7 @@ model HelpdeskNote {
   Mentions       String         @db.Text
   HelpdeskHeader HelpdeskHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskNote__HelpdeskHeader")
 
-  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D002EED80BD6")
+  @@id([Nomor, LineNum], map: "PK__Helpdesk__BAE0D0021A8E294F")
 }
 
 model HelpdeskNotif {
@@ -106,17 +108,17 @@ model HelpdeskNotif {
   Action         String         @db.VarChar(20)
   HelpdeskHeader HelpdeskHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__HelpdeskNotif__HelpdeskHeader")
 
-  @@id([Nomor, Username], map: "PK__Helpdesk__68C485AB806D22D7")
+  @@id([Nomor, Username], map: "PK__Helpdesk__68C485ABCC3AE3BE")
 }
 
 model HelpdeskOrderMaster {
-  Code       String @id(map: "PK__Helpdesk__A25C5AA68923ED7F") @db.VarChar(10)
+  Code       String @id(map: "PK__Helpdesk__A25C5AA687C5F437") @db.VarChar(10)
   Descrption String @db.VarChar(256)
-  IsActive   String @db.Char(1)
+  IsActive   String @default("Y", map: "DF__HelpdeskO__IsAct__65570293") @db.Char(1)
 }
 
 model HelpdeskUser {
-  Username           String         @id(map: "PK__Helpdesk__536C85E50269A580") @db.VarChar(10)
+  Username           String         @id(map: "PK__Helpdesk__536C85E58E0745CF") @db.VarChar(10)
   Pwd                Bytes          @db.VarBinary(256)
   Salt               String         @db.VarChar(20)
   Lvl                String         @db.VarChar(10)
@@ -127,7 +129,7 @@ model HelpdeskUser {
 }
 
 model PkpMasterMasalah {
-  Code     Int    @id(map: "PK__PkpMaste__A25C5AA6DFD6FD9C")
+  Code     Int    @id(map: "PK__PkpMaste__A25C5AA61F5D78BB")
   Masalah  String @db.VarChar(256)
   IsActive String @db.VarChar(1)
 }
@@ -143,7 +145,7 @@ model SkmCc {
   NamaFile  String    @db.VarChar(256)
   SkmHeader SkmHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__SkmCc__SkmHeader")
 
-  @@id([Nomor, Phase, LineNum], map: "PK__SkmCc__81528DE8360E315F")
+  @@id([Nomor, Phase, LineNum], map: "PK__SkmCc__81528DE8EA80A86C")
 }
 
 model SkmDetails {
@@ -154,11 +156,11 @@ model SkmDetails {
   Keluhan   String    @db.Text
   SkmHeader SkmHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__SkmDetails__SkmHeader")
 
-  @@id([Nomor, LineNum], map: "PK__SkmDetai__BAE0D002076C489F")
+  @@id([Nomor, LineNum], map: "PK__SkmDetai__BAE0D0024BABE578")
 }
 
 model SkmHeader {
-  Nomor          String          @id(map: "PK__SkmHeade__2DF24DF53F20C41C") @db.VarChar(10)
+  Nomor          String          @id(map: "PK__SkmHeade__2DF24DF58B43349D") @db.VarChar(10)
   NoReferensi    String          @db.VarChar(256)
   Jenis          String          @db.VarChar(20)
   Lingkup        String          @db.VarChar(20)
@@ -205,7 +207,7 @@ model SkmPenanganan {
   SkmHeader                SkmHeader         @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__SkmPenanganan__SkmHeader")
   SkmVerification          SkmVerification[]
 
-  @@id([Nomor, LineNum], map: "PK__SkmPenan__BAE0D0028349FCA2")
+  @@id([Nomor, LineNum], map: "PK__SkmPenan__BAE0D002AA0848A0")
 }
 
 model SkmVerification {
@@ -220,7 +222,7 @@ model SkmVerification {
   NamaFile          String        @db.VarChar(256)
   SkmPenanganan     SkmPenanganan @relation(fields: [Nomor, LineNumPenanganan], references: [Nomor, LineNum], onDelete: Cascade, map: "FK__SkmVerification__SkmPenanganan")
 
-  @@id([Nomor, LineNumPenanganan, LineNum], map: "PK__SkmVerif__EB99A7F41D11F4B4")
+  @@id([Nomor, LineNumPenanganan, Phase, LineNum], map: "PK__SkmVerif__4822822AB2C6DD46")
 }
 
 model HelpdeskNoteJobReg {
@@ -232,7 +234,7 @@ model HelpdeskNoteJobReg {
   Comment         String          @db.Text
   HelpdeskDetails HelpdeskDetails @relation(fields: [Nomor, LineNumDetails], references: [Nomor, LineNum], onDelete: Cascade, map: "FK_HelpdeskNoteJobReg_HelpdeskDetails")
 
-  @@id([Nomor, LineNumDetails, LineNum], map: "PK__Helpdesk__33F2203A34ABE4D5")
+  @@id([Nomor, LineNumDetails, LineNum], map: "PK__Helpdesk__33F2203AA99DFB70")
 }
 
 model BpbCc {
@@ -245,7 +247,7 @@ model BpbCc {
   NamaFile  String    @db.VarChar(256)
   BpbHeader BpbHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__BpbCc__BpbHeader")
 
-  @@id([Nomor, LineNum], map: "PK__BpbCc__BAE0D00209766F07")
+  @@id([Nomor, LineNum], map: "PK__BpbCc__BAE0D00204968E3D")
 }
 
 model BpbDetails {
@@ -258,11 +260,11 @@ model BpbDetails {
   TS_Kembali   DateTime  @db.DateTime
   BpbHeader    BpbHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__BpbDetails__BpbHeader")
 
-  @@id([Nomor, LineNum], map: "PK__BpbDetai__BAE0D002753C7F9E")
+  @@id([Nomor, LineNum], map: "PK__BpbDetai__BAE0D0022E560EC4")
 }
 
 model BpbHeader {
-  Nomor          String       @id(map: "PK__BpbHeade__2DF24DF5090CC23C") @db.VarChar(20)
+  Nomor          String       @id(map: "PK__BpbHeade__2DF24DF598415B72") @db.VarChar(20)
   Dari           String       @db.VarChar(10)
   CardCode       String       @db.VarChar(20)
   Kepada         String       @db.Text
@@ -286,5 +288,1658 @@ model BpbNote {
   Mentions  String    @db.Text
   BpbHeader BpbHeader @relation(fields: [Nomor], references: [Nomor], onDelete: Cascade, map: "FK__BpbNote__BpbHeader")
 
-  @@id([Nomor, LineNum], map: "PK__BpbNote__BAE0D00216DCF543")
+  @@id([Nomor, LineNum], map: "PK__BpbNote__BAE0D0022568013F")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ABSENSI {
+  NIK        String?   @db.VarChar(8)
+  STATUS     String?   @db.VarChar(20)
+  TANGGALJAM DateTime? @db.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ADVO_DATA {
+  TGL_KUNJUNGAN           DateTime? @db.Date
+  JAM_KUNJUNGAN           DateTime? @db.Time
+  REGION                  String?   @db.VarChar(8)
+  CABANG                  String?   @db.VarChar(32)
+  BULAN                   String?   @db.VarChar(8)
+  OUTLET_ID               String?   @db.VarChar(32)
+  OUTLET_NAME             String?   @db.VarChar(256)
+  OUTLET_ADDRESS          String?   @db.Text
+  OUTLET_TYPE             String?   @db.VarChar(32)
+  REGENCY                 String?   @db.VarChar(256)
+  FRONTLINER_NAME         String?   @db.VarChar(256)
+  PRODUK_TERSEDIA         String?   @db.VarChar(256)
+  STIKER_SERVICE_TERSEDIA String?   @db.VarChar(256)
+  SPANDUK_TERSEDIA        String?   @db.VarChar(256)
+  PLANK_TERSEDIA          String?   @db.VarChar(256)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model BLKS_CC {
+  NOMOR     String?   @db.VarChar(15)
+  LINENUM   Int?
+  CC        String?   @db.VarChar(10)
+  AC        String?   @db.VarChar(10)
+  TGLAC     DateTime? @db.Date
+  RTB       String?   @db.Text
+  PIC       String?   @db.VarChar(10)
+  FILE_NAME String?   @db.VarChar(512)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model BLKS_GAMBAR {
+  NOMOR     String? @db.VarChar(16)
+  LINENUM   Int?
+  FILE_NAME String? @db.VarChar(512)
+  NOTE      String? @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model BLKS_HEADER {
+  NOMOR               String?   @db.Char(15)
+  KODE_PARTS          String?   @db.VarChar(20)
+  NAMA_PARTS          String?   @db.VarChar(256)
+  KODE_PK             String?   @db.VarChar(20)
+  NAMA_PK             String?   @db.Text
+  OCRCODE             String?   @db.VarChar(10)
+  OCRNAME             String?   @db.VarChar(256)
+  PRIORITAS           String?   @db.VarChar(8)
+  DARI                String?   @db.VarChar(10)
+  KEPADA              String?   @db.VarChar(10)
+  STATUS              String?   @db.VarChar(16)
+  FILE_NAME           String?   @db.VarChar(256)
+  DASAR_PERMINTAAN    String?   @db.Text
+  TANGGAL_BUKA        DateTime? @db.Date
+  TANGGAL_TERBIT      DateTime? @db.Date
+  TANGGAL_TERIMA      DateTime? @db.Date
+  TANGGAL_KEMBALI     DateTime? @db.Date
+  TANGGAL_SELESAI     DateTime? @db.Date
+  RTBREVISI           String?   @db.Text
+  RTBREJECT           String?   @db.Text
+  FEEDBACK            String?   @db.VarChar(16)
+  KETERANGAN_FEEDBACK String?   @db.Text
+  FILE_NAME_FEEDBACK  String?   @db.VarChar(256)
+  STATUS_FEEDBACK     String?   @db.VarChar(20)
+  AL                  String?   @db.VarChar(10)
+  PRD                 String?   @db.VarChar(10)
+  PIC                 String?   @db.VarChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model BLKS_VERIFICATION {
+  NOMOR         String?   @db.Char(15)
+  LINENUM       Int?
+  VERIFICATOR   String?   @db.VarChar(20)
+  BAGIAN        String?   @db.VarChar(10)
+  VERIFIED      String?   @db.Char(1)
+  TANGGAL_VERIF DateTime? @db.Date
+  NB            String?   @db.Text
+  FILE_NAME     String?   @db.VarChar(512)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model EF_ADVO_COVERAGE {
+  CABANG      String? @db.VarChar(32)
+  OUTLET_TYPE String? @db.VarChar(32)
+  JUMLAH      Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model EF_ADVO_KERJASAMA {
+  CABANG      String? @db.VarChar(32)
+  OUTLET_TYPE String? @db.VarChar(32)
+  JUMLAH      Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model FPKPE_PERLUCEKGMG {
+  KODE     String? @db.VarChar(100)
+  JUDUL    String? @db.VarChar(500)
+  PENERIMA String? @db.VarChar(100)
+  REVISI   String? @db.VarChar(10)
+
+  @@ignore
+}
+
+model HELPDESK_AKTIVA {
+  KODE_AKTIVA   String    @id(map: "PK__HELPDESK__DFF12BE79F2A3C26") @db.VarChar(50)
+  JENIS         String?   @db.VarChar(20)
+  TGL_PEMBELIAN DateTime? @db.Date
+  BATAS_GARANSI DateTime? @db.Date
+  MERK          String?   @db.VarChar(50)
+  TIPE          String?   @db.VarChar(2000)
+  UKURAN        String?   @db.VarChar(2000)
+  REMARKS       String?   @db.VarChar(8000)
+  TGLAFKIR      DateTime? @db.Date
+}
+
+model HELPDESK_BAGIAN {
+  KODE String  @id(map: "PK__HELPDESK__BF69F887AE86561E") @db.VarChar(10)
+  DESC String? @db.VarChar(100)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB_DETAIL {
+  NOMOR         String?   @db.VarChar(20)
+  LINENUM       Decimal?  @db.Decimal(18, 0)
+  QTY           Decimal?  @db.Decimal(18, 2)
+  SATUAN        String?   @db.VarChar(100)
+  NAMA          String?   @db.VarChar(8000)
+  WAJIB_KEMBALI String?   @db.VarChar(10)
+  TS_KEMBALI    DateTime? @db.Date
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB_HEADER {
+  NOMOR      String?   @db.VarChar(20)
+  KEPADA     String?   @db.VarChar(4000)
+  TGL        DateTime? @db.Date
+  STATUS     String?   @db.VarChar(20)
+  KETERANGAN String?   @db.VarChar(4000)
+  REF        String?   @db.VarChar(4000)
+  CC1        String?   @db.VarChar(20)
+  AC1        String?   @db.VarChar(15)
+  TGLAC1     DateTime? @db.Date
+  PIC1       String?   @db.VarChar(20)
+  RTB1       String?   @db.VarChar(8000)
+  CC2        String?   @db.VarChar(20)
+  AC2        String?   @db.VarChar(15)
+  TGLAC2     DateTime? @db.Date
+  PIC2       String?   @db.VarChar(20)
+  RTB2       String?   @db.VarChar(8000)
+  CC3        String?   @db.VarChar(20)
+  AC3        String?   @db.VarChar(15)
+  TGLAC3     DateTime? @db.Date
+  PIC3       String?   @db.VarChar(20)
+  RTB3       String?   @db.VarChar(8000)
+  CC4        String?   @db.VarChar(20)
+  AC4        String?   @db.VarChar(15)
+  TGLAC4     DateTime? @db.Date
+  PIC4       String?   @db.VarChar(20)
+  RTB4       String?   @db.VarChar(8000)
+  CC5        String?   @db.VarChar(20)
+  AC5        String?   @db.VarChar(15)
+  TGLAC5     DateTime? @db.Date
+  PIC5       String?   @db.VarChar(20)
+  RTB5       String?   @db.VarChar(8000)
+  CC6        String?   @db.VarChar(20)
+  AC6        String?   @db.VarChar(15)
+  TGLAC6     DateTime? @db.Date
+  PIC6       String?   @db.VarChar(20)
+  RTB6       String?   @db.VarChar(8000)
+  CC7        String?   @db.VarChar(20)
+  AC7        String?   @db.VarChar(15)
+  TGLAC7     DateTime? @db.Date
+  PIC7       String?   @db.VarChar(20)
+  RTB7       String?   @db.VarChar(8000)
+  CC8        String?   @db.VarChar(20)
+  AC8        String?   @db.VarChar(15)
+  TGLAC8     DateTime? @db.Date
+  PIC8       String?   @db.VarChar(20)
+  RTB8       String?   @db.VarChar(8000)
+  CC9        String?   @db.VarChar(20)
+  AC9        String?   @db.VarChar(15)
+  TGLAC9     DateTime? @db.Date
+  PIC9       String?   @db.VarChar(20)
+  RTB9       String?   @db.VarChar(8000)
+  CC10       String?   @db.VarChar(20)
+  AC10       String?   @db.VarChar(15)
+  TGLAC10    DateTime? @db.Date
+  PIC10      String?   @db.VarChar(20)
+  RTB10      String?   @db.VarChar(8000)
+  RTBREJECT  String?   @db.VarChar(8000)
+  TGL_TERIMA DateTime? @db.Date
+  RTBREVISI  String?   @db.VarChar(8000)
+  DARI       String?   @db.VarChar(10)
+  NAMAFILE   String?   @db.VarChar(200)
+  FILE       Bytes?
+  CARDCODE   String?   @db.VarChar(100)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB_LOG {
+  NOMOR String?   @db.VarChar(20)
+  TGL   DateTime? @db.DateTime
+  USER  String?   @db.VarChar(10)
+  KET   String?   @db.VarChar(2000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB_SIGN {
+  NO String? @db.VarChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB1 {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB2 {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_BPB3 {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_CC {
+  NOMOR      String?   @db.VarChar(20)
+  LINENUM    Int?
+  CC         String?   @db.VarChar(10)
+  AC         String?   @db.VarChar(10)
+  TANGGAL_AC DateTime? @db.Date
+  RTB        String?   @db.Text
+  PIC        String?   @db.VarChar(10)
+  NAMA_FILE  String?   @db.VarChar(256)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_DETAIL_TABLE {
+  NOMOR           String?   @db.VarChar(20)
+  LINENUM         Int?
+  ORDER           String?   @db.VarChar(20)
+  JUMLAH          Float?
+  KETERANGAN      String?   @db.Text
+  STATUS          String?   @db.VarChar(20)
+  PIC             String?   @db.VarChar(10)
+  REMARKS         String?   @db.Text
+  TANGGAL_TERIMA  DateTime? @db.Date
+  TS              DateTime? @db.Date
+  TANGGAL_SELESAI DateTime? @db.Date
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB_DETAIL {
+  NOMOR        String?   @db.VarChar(20)
+  LINENUM      Decimal?  @db.Decimal(18, 0)
+  ORDER        String?   @db.VarChar(100)
+  JUMLAH       Decimal?  @db.Decimal(18, 0)
+  KETERANGAN1  String?   @db.VarChar(8000)
+  TGL_TERIMA   DateTime? @db.Date
+  STATUS       String?   @db.VarChar(20)
+  TS           DateTime? @db.Date
+  PIC          String?   @db.VarChar(20)
+  REMARKS      String?   @db.VarChar(8000)
+  FINISHEDDATE DateTime? @db.Date
+  PRINTKE      Decimal?  @db.Decimal(18, 0)
+  NOAKTIVA     String?   @db.VarChar(100)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB_HEADER {
+  NOMOR          String?   @db.VarChar(20)
+  TITLE          String?   @db.VarChar(8000)
+  TIPE           String?   @db.VarChar(20)
+  PRIORITAS      String?   @db.VarChar(20)
+  NAMAFILE       String?   @db.VarChar(200)
+  FILE           Bytes?
+  DARI           String?   @db.VarChar(10)
+  KEPADA         String?   @db.VarChar(5)
+  TGL            DateTime? @db.Date
+  STATUS         String?   @db.VarChar(20)
+  PERTIMBANGAN   String?   @db.VarChar(8000)
+  CC1            String?   @db.VarChar(20)
+  AC1            String?   @db.VarChar(15)
+  CC2            String?   @db.VarChar(20)
+  AC2            String?   @db.VarChar(15)
+  CC3            String?   @db.VarChar(20)
+  AC3            String?   @db.VarChar(15)
+  FINISHEDDATE   DateTime? @db.Date
+  RTB1           String?   @db.VarChar(8000)
+  RTB2           String?   @db.VarChar(8000)
+  RTB3           String?   @db.VarChar(8000)
+  RTBREJECT      String?   @db.VarChar(8000)
+  TGL_TERIMA     DateTime? @db.Date
+  USER_PRINT     String?   @db.VarChar(300)
+  KALI_PRINT     Decimal?  @db.Decimal(18, 0)
+  CC4            String?   @db.VarChar(20)
+  AC4            String?   @db.VarChar(15)
+  CC5            String?   @db.VarChar(20)
+  AC5            String?   @db.VarChar(15)
+  CC6            String?   @db.VarChar(20)
+  AC6            String?   @db.VarChar(15)
+  RTB4           String?   @db.VarChar(8000)
+  RTB5           String?   @db.VarChar(8000)
+  RTB6           String?   @db.VarChar(8000)
+  NAMAFILE1      String?   @db.VarChar(200)
+  FILE1          Bytes?
+  NAMAFILE2      String?   @db.VarChar(200)
+  FILE2          Bytes?
+  NAMAFILE3      String?   @db.VarChar(200)
+  FILE3          Bytes?
+  NAMAFILE4      String?   @db.VarChar(200)
+  FILE4          Bytes?
+  NAMAFILE5      String?   @db.VarChar(200)
+  FILE5          Bytes?
+  NAMAFILE6      String?   @db.VarChar(200)
+  FILE6          Bytes?
+  RTBREVISI      String?   @db.VarChar(8000)
+  TGLAC1         DateTime? @db.Date
+  TGLAC2         DateTime? @db.Date
+  TGLAC3         DateTime? @db.Date
+  TGLAC4         DateTime? @db.Date
+  TGLAC5         DateTime? @db.Date
+  TGLAC6         DateTime? @db.Date
+  CC7            String?   @db.VarChar(20)
+  AC7            String?   @db.VarChar(15)
+  CC8            String?   @db.VarChar(20)
+  AC8            String?   @db.VarChar(15)
+  CC9            String?   @db.VarChar(20)
+  AC9            String?   @db.VarChar(15)
+  CC10           String?   @db.VarChar(20)
+  AC10           String?   @db.VarChar(15)
+  RTB7           String?   @db.VarChar(8000)
+  RTB8           String?   @db.VarChar(8000)
+  RTB9           String?   @db.VarChar(8000)
+  RTB10          String?   @db.VarChar(8000)
+  NAMAFILE7      String?   @db.VarChar(200)
+  FILE7          Bytes?
+  NAMAFILE8      String?   @db.VarChar(200)
+  FILE8          Bytes?
+  NAMAFILE9      String?   @db.VarChar(200)
+  FILE9          Bytes?
+  NAMAFILE10     String?   @db.VarChar(200)
+  FILE10         Bytes?
+  TGLAC7         DateTime? @db.Date
+  TGLAC8         DateTime? @db.Date
+  TGLAC9         DateTime? @db.Date
+  TGLAC10        DateTime? @db.Date
+  PIC1           String?   @db.VarChar(20)
+  PIC2           String?   @db.VarChar(20)
+  PIC3           String?   @db.VarChar(20)
+  PIC4           String?   @db.VarChar(20)
+  PIC5           String?   @db.VarChar(20)
+  PIC6           String?   @db.VarChar(20)
+  PIC7           String?   @db.VarChar(20)
+  PIC8           String?   @db.VarChar(20)
+  PIC9           String?   @db.VarChar(20)
+  PIC10          String?   @db.VarChar(20)
+  NAMAFILEKEPADA String?   @db.VarChar(200)
+  FILEKEPADA     Bytes?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB_LOG {
+  NOMOR String?   @db.VarChar(20)
+  TGL   DateTime? @db.DateTime
+  USER  String?   @db.VarChar(10)
+  KET   String?   @db.VarChar(2000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB1 {
+  NOMOR String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB2 {
+  NOMOR String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FAB3 {
+  NOMOR String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FOBS_DETAIL {
+  NOMOR   String?  @db.VarChar(20)
+  LINENUM Decimal? @db.Decimal(18, 0)
+  KODE    String?  @db.VarChar(300)
+  NAMA    String?  @db.VarChar(8000)
+  QTY     Decimal? @db.Decimal(18, 0)
+  REMARKS String?  @db.VarChar(8000)
+  BEKAS   String?  @db.VarChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FOBS_HEADER {
+  NOMOR        String?   @db.VarChar(20)
+  NAMAFILE     String?   @db.VarChar(200)
+  FILE         Bytes?
+  DARI         String?   @db.VarChar(10)
+  TGL          DateTime? @db.Date
+  STATUS       String?   @db.VarChar(20)
+  CC1          String?   @db.VarChar(20)
+  AC1          String?   @db.VarChar(15)
+  CC2          String?   @db.VarChar(20)
+  AC2          String?   @db.VarChar(15)
+  CC3          String?   @db.VarChar(20)
+  AC3          String?   @db.VarChar(15)
+  FINISHEDDATE DateTime? @db.Date
+  RTB1         String?   @db.VarChar(8000)
+  RTB2         String?   @db.VarChar(8000)
+  RTB3         String?   @db.VarChar(8000)
+  RTBREJECT    String?   @db.VarChar(8000)
+  TGL_TERIMA   DateTime? @db.Date
+  CC4          String?   @db.VarChar(20)
+  AC4          String?   @db.VarChar(15)
+  CC5          String?   @db.VarChar(20)
+  AC5          String?   @db.VarChar(15)
+  CC6          String?   @db.VarChar(20)
+  AC6          String?   @db.VarChar(15)
+  RTB4         String?   @db.VarChar(8000)
+  RTB5         String?   @db.VarChar(8000)
+  RTB6         String?   @db.VarChar(8000)
+  NAMAFILE1    String?   @db.VarChar(200)
+  FILE1        Bytes?
+  NAMAFILE2    String?   @db.VarChar(200)
+  FILE2        Bytes?
+  NAMAFILE3    String?   @db.VarChar(200)
+  FILE3        Bytes?
+  NAMAFILE4    String?   @db.VarChar(200)
+  FILE4        Bytes?
+  NAMAFILE5    String?   @db.VarChar(200)
+  FILE5        Bytes?
+  NAMAFILE6    String?   @db.VarChar(200)
+  FILE6        Bytes?
+  RTBREVISI    String?   @db.VarChar(8000)
+  TGLAC1       DateTime? @db.Date
+  TGLAC2       DateTime? @db.Date
+  TGLAC3       DateTime? @db.Date
+  TGLAC4       DateTime? @db.Date
+  TGLAC5       DateTime? @db.Date
+  TGLAC6       DateTime? @db.Date
+  CC7          String?   @db.VarChar(20)
+  AC7          String?   @db.VarChar(15)
+  CC8          String?   @db.VarChar(20)
+  AC8          String?   @db.VarChar(15)
+  CC9          String?   @db.VarChar(20)
+  AC9          String?   @db.VarChar(15)
+  CC10         String?   @db.VarChar(20)
+  AC10         String?   @db.VarChar(15)
+  RTB7         String?   @db.VarChar(8000)
+  RTB8         String?   @db.VarChar(8000)
+  RTB9         String?   @db.VarChar(8000)
+  RTB10        String?   @db.VarChar(8000)
+  NAMAFILE7    String?   @db.VarChar(200)
+  FILE7        Bytes?
+  NAMAFILE8    String?   @db.VarChar(200)
+  FILE8        Bytes?
+  NAMAFILE9    String?   @db.VarChar(200)
+  FILE9        Bytes?
+  NAMAFILE10   String?   @db.VarChar(200)
+  FILE10       Bytes?
+  TGLAC7       DateTime? @db.Date
+  TGLAC8       DateTime? @db.Date
+  TGLAC9       DateTime? @db.Date
+  TGLAC10      DateTime? @db.Date
+  PIC1         String?   @db.VarChar(20)
+  PIC2         String?   @db.VarChar(20)
+  PIC3         String?   @db.VarChar(20)
+  PIC4         String?   @db.VarChar(20)
+  PIC5         String?   @db.VarChar(20)
+  PIC6         String?   @db.VarChar(20)
+  PIC7         String?   @db.VarChar(20)
+  PIC8         String?   @db.VarChar(20)
+  PIC9         String?   @db.VarChar(20)
+  PIC10        String?   @db.VarChar(20)
+  TIPE         String?   @db.VarChar(50)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FOBS_SIGN {
+  NO String? @db.VarChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPB_DETAIL {
+  NOMOR    String?  @db.VarChar(20)
+  LINENUM  Decimal? @db.Decimal(18, 0)
+  KODE     String?  @db.VarChar(300)
+  NAMA     String?  @db.VarChar(8000)
+  QTY      Decimal? @db.Decimal(18, 0)
+  REMARKS  String?  @db.VarChar(8000)
+  BEKAS    String?  @db.VarChar(10)
+  RUTIN    String?  @db.VarChar(10)
+  HARGA    Decimal? @db.Decimal(18, 2)
+  CHPP     String?  @db.VarChar(100)
+  QTYSERAH Decimal? @db.Decimal(18, 0)
+  NOTEGDT  String?  @db.VarChar(8000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPB_HEADER {
+  NOMOR        String?   @db.VarChar(20)
+  NAMAFILE     String?   @db.VarChar(200)
+  FILE         Bytes?
+  DARI         String?   @db.VarChar(10)
+  TGL          DateTime? @db.Date
+  STATUS       String?   @db.VarChar(20)
+  CC1          String?   @db.VarChar(20)
+  AC1          String?   @db.VarChar(15)
+  CC2          String?   @db.VarChar(20)
+  AC2          String?   @db.VarChar(15)
+  CC3          String?   @db.VarChar(20)
+  AC3          String?   @db.VarChar(15)
+  FINISHEDDATE DateTime? @db.Date
+  RTB1         String?   @db.VarChar(8000)
+  RTB2         String?   @db.VarChar(8000)
+  RTB3         String?   @db.VarChar(8000)
+  RTBREJECT    String?   @db.VarChar(8000)
+  TGL_TERIMA   DateTime? @db.Date
+  CC4          String?   @db.VarChar(20)
+  AC4          String?   @db.VarChar(15)
+  CC5          String?   @db.VarChar(20)
+  AC5          String?   @db.VarChar(15)
+  CC6          String?   @db.VarChar(20)
+  AC6          String?   @db.VarChar(15)
+  RTB4         String?   @db.VarChar(8000)
+  RTB5         String?   @db.VarChar(8000)
+  RTB6         String?   @db.VarChar(8000)
+  NAMAFILE1    String?   @db.VarChar(200)
+  FILE1        Bytes?
+  NAMAFILE2    String?   @db.VarChar(200)
+  FILE2        Bytes?
+  NAMAFILE3    String?   @db.VarChar(200)
+  FILE3        Bytes?
+  NAMAFILE4    String?   @db.VarChar(200)
+  FILE4        Bytes?
+  NAMAFILE5    String?   @db.VarChar(200)
+  FILE5        Bytes?
+  NAMAFILE6    String?   @db.VarChar(200)
+  FILE6        Bytes?
+  RTBREVISI    String?   @db.VarChar(8000)
+  TGLAC1       DateTime? @db.Date
+  TGLAC2       DateTime? @db.Date
+  TGLAC3       DateTime? @db.Date
+  TGLAC4       DateTime? @db.Date
+  TGLAC5       DateTime? @db.Date
+  TGLAC6       DateTime? @db.Date
+  CC7          String?   @db.VarChar(20)
+  AC7          String?   @db.VarChar(15)
+  CC8          String?   @db.VarChar(20)
+  AC8          String?   @db.VarChar(15)
+  CC9          String?   @db.VarChar(20)
+  AC9          String?   @db.VarChar(15)
+  CC10         String?   @db.VarChar(20)
+  AC10         String?   @db.VarChar(15)
+  RTB7         String?   @db.VarChar(8000)
+  RTB8         String?   @db.VarChar(8000)
+  RTB9         String?   @db.VarChar(8000)
+  RTB10        String?   @db.VarChar(8000)
+  NAMAFILE7    String?   @db.VarChar(200)
+  FILE7        Bytes?
+  NAMAFILE8    String?   @db.VarChar(200)
+  FILE8        Bytes?
+  NAMAFILE9    String?   @db.VarChar(200)
+  FILE9        Bytes?
+  NAMAFILE10   String?   @db.VarChar(200)
+  FILE10       Bytes?
+  TGLAC7       DateTime? @db.Date
+  TGLAC8       DateTime? @db.Date
+  TGLAC9       DateTime? @db.Date
+  TGLAC10      DateTime? @db.Date
+  PIC1         String?   @db.VarChar(20)
+  PIC2         String?   @db.VarChar(20)
+  PIC3         String?   @db.VarChar(20)
+  PIC4         String?   @db.VarChar(20)
+  PIC5         String?   @db.VarChar(20)
+  PIC6         String?   @db.VarChar(20)
+  PIC7         String?   @db.VarChar(20)
+  PIC8         String?   @db.VarChar(20)
+  PIC9         String?   @db.VarChar(20)
+  PIC10        String?   @db.VarChar(20)
+  TIPE         String?   @db.VarChar(50)
+  JAM          String?   @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPB_SIGN {
+  NO String? @db.VarChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPB1 {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPB2 {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPB3 {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPKPE_DETAIL {
+  NOMOR       String?   @db.VarChar(20)
+  LINENUM     Decimal?  @db.Decimal(18, 0)
+  KODE        String?   @db.VarChar(300)
+  JUDUL       String?   @db.VarChar(8000)
+  REVISI      String?   @db.VarChar(10)
+  HAL         String?   @db.VarChar(10)
+  TGL_BERLAKU DateTime? @db.Date
+  BAGIAN      String?   @db.VarChar(300)
+  QS          Boolean?
+  TGL         String?   @db.VarChar(800)
+  NOFAB       String?   @db.VarChar(8000)
+  HASIL       String?   @db.VarChar(8000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FPKPE_HEADER {
+  NOMOR        String?   @db.VarChar(20)
+  NAMAFILE     String?   @db.VarChar(200)
+  FILE         Bytes?
+  DARI         String?   @db.VarChar(10)
+  KEPADA       String?   @db.VarChar(5)
+  TGL          DateTime? @db.Date
+  STATUS       String?   @db.VarChar(20)
+  PENERIMA     String?   @db.VarChar(8000)
+  CC1          String?   @db.VarChar(20)
+  AC1          String?   @db.VarChar(15)
+  CC2          String?   @db.VarChar(20)
+  AC2          String?   @db.VarChar(15)
+  CC3          String?   @db.VarChar(20)
+  AC3          String?   @db.VarChar(15)
+  FINISHEDDATE DateTime? @db.Date
+  RTB1         String?   @db.VarChar(8000)
+  RTB2         String?   @db.VarChar(8000)
+  RTB3         String?   @db.VarChar(8000)
+  RTBREJECT    String?   @db.VarChar(8000)
+  TGL_TERIMA   DateTime? @db.Date
+  CC4          String?   @db.VarChar(20)
+  AC4          String?   @db.VarChar(15)
+  CC5          String?   @db.VarChar(20)
+  AC5          String?   @db.VarChar(15)
+  CC6          String?   @db.VarChar(20)
+  AC6          String?   @db.VarChar(15)
+  RTB4         String?   @db.VarChar(8000)
+  RTB5         String?   @db.VarChar(8000)
+  RTB6         String?   @db.VarChar(8000)
+  NAMAFILE1    String?   @db.VarChar(200)
+  FILE1        Bytes?
+  NAMAFILE2    String?   @db.VarChar(200)
+  FILE2        Bytes?
+  NAMAFILE3    String?   @db.VarChar(200)
+  FILE3        Bytes?
+  NAMAFILE4    String?   @db.VarChar(200)
+  FILE4        Bytes?
+  NAMAFILE5    String?   @db.VarChar(200)
+  FILE5        Bytes?
+  NAMAFILE6    String?   @db.VarChar(200)
+  FILE6        Bytes?
+  RTBREVISI    String?   @db.VarChar(8000)
+  TGLAC1       DateTime? @db.Date
+  TGLAC2       DateTime? @db.Date
+  TGLAC3       DateTime? @db.Date
+  TGLAC4       DateTime? @db.Date
+  TGLAC5       DateTime? @db.Date
+  TGLAC6       DateTime? @db.Date
+  CC7          String?   @db.VarChar(20)
+  AC7          String?   @db.VarChar(15)
+  CC8          String?   @db.VarChar(20)
+  AC8          String?   @db.VarChar(15)
+  CC9          String?   @db.VarChar(20)
+  AC9          String?   @db.VarChar(15)
+  CC10         String?   @db.VarChar(20)
+  AC10         String?   @db.VarChar(15)
+  RTB7         String?   @db.VarChar(8000)
+  RTB8         String?   @db.VarChar(8000)
+  RTB9         String?   @db.VarChar(8000)
+  RTB10        String?   @db.VarChar(8000)
+  NAMAFILE7    String?   @db.VarChar(200)
+  FILE7        Bytes?
+  NAMAFILE8    String?   @db.VarChar(200)
+  FILE8        Bytes?
+  NAMAFILE9    String?   @db.VarChar(200)
+  FILE9        Bytes?
+  NAMAFILE10   String?   @db.VarChar(200)
+  FILE10       Bytes?
+  TGLAC7       DateTime? @db.Date
+  TGLAC8       DateTime? @db.Date
+  TGLAC9       DateTime? @db.Date
+  TGLAC10      DateTime? @db.Date
+  PIC1         String?   @db.VarChar(20)
+  PIC2         String?   @db.VarChar(20)
+  PIC3         String?   @db.VarChar(20)
+  PIC4         String?   @db.VarChar(20)
+  PIC5         String?   @db.VarChar(20)
+  PIC6         String?   @db.VarChar(20)
+  PIC7         String?   @db.VarChar(20)
+  PIC8         String?   @db.VarChar(20)
+  PIC9         String?   @db.VarChar(20)
+  PIC10        String?   @db.VarChar(20)
+  EMAIL        String?   @db.VarChar(500)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_FSTB {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_HEADER_TABLE {
+  NOMOR            String?   @db.VarChar(20)
+  TITLE            String?   @db.Text
+  TIPE             String?   @db.VarChar(20)
+  PRIORITAS        String?   @db.VarChar(20)
+  DARI             String?   @db.VarChar(10)
+  KEPADA           String?   @db.VarChar(10)
+  STATUS           String?   @db.VarChar(20)
+  PERTIMBANGAN     String?   @db.Text
+  NAMA_FILE        String?   @db.VarChar(256)
+  NAMA_FILE_KEPADA String?   @db.VarChar(256)
+  TANGGAL_TERBIT   DateTime? @db.Date
+  TANGGAL_TERIMA   DateTime? @db.Date
+  TANGGAL_SELESAI  DateTime? @db.Date
+  RTB_REVISI       String?   @db.Text
+  RTB_REJECT       String?   @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_LAPORAN_PERMINTAAN {
+  PIC     String?   @db.VarChar(20)
+  JENIS   String?   @db.VarChar(30)
+  SELESAI String?   @db.VarChar(5)
+  TEPATTS String?   @db.VarChar(5)
+  DARI    DateTime? @db.Date
+  SAMPAI  DateTime? @db.Date
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_LAPORAN_PERMINTAAN2 {
+  KEPADA  String?   @db.VarChar(20)
+  JENIS   String?   @db.VarChar(30)
+  SELESAI String?   @db.VarChar(5)
+  TEPATTS String?   @db.VarChar(5)
+  DARI    DateTime? @db.Date
+  SAMPAI  DateTime? @db.Date
+  PEMBUAT String?   @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_LOGIN {
+  USER   String?   @db.VarChar(20)
+  TGLJAM DateTime? @db.DateTime
+
+  @@ignore
+}
+
+model HELPDESK_MASTER_HARDWARE {
+  CODE         String  @id(map: "PK__HELPDESK__AA1D43789F0DDF96") @db.VarChar(20)
+  NAME         String? @db.VarChar(100)
+  DESC         String? @db.VarChar(100)
+  AKTIVA       String? @db.VarChar(1)
+  ACTIVE       String? @db.VarChar(1)
+  ASSETS       String? @db.VarChar(1)
+  SERVICE_TYPE String? @db.VarChar(20)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_NETWORK {
+  KODE_ACTIVA_HARDWARE String?   @db.VarChar(20)
+  COMP_NAME            String?   @db.VarChar(50)
+  IP                   String?   @db.VarChar(20)
+  DOMAIN               String?   @db.VarChar(20)
+  MAC_ADDRESS          String?   @db.VarChar(20)
+  FUNCTION             String?   @db.VarChar(30)
+  REMARK               String?   @db.VarChar(8000)
+  USERNAME             String?   @db.VarChar(20)
+  LAST_UPDATE          DateTime? @db.Date
+  ACTIVE               String?   @db.VarChar(5)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_NOTIFPENGAJUANREV {
+  NOMOR    String? @db.VarChar(100)
+  USERNAME String? @db.VarChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_NOTIFREV {
+  NOMOR    String? @db.VarChar(20)
+  USERNAME String? @db.VarChar(10)
+
+  @@ignore
+}
+
+model HELPDESK_ORDER_MASTER {
+  CODE            String  @id(map: "PK__HELPDESK__AA1D4378F7C7B12C") @db.VarChar(20)
+  DESC            String? @db.VarChar(100)
+  ACTIVE          String? @db.VarChar(1)
+  MASTER_HARDWARE String? @db.VarChar(20)
+  BAGIAN          String? @db.VarChar(20)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_OTORITAS_CC_MASTER {
+  BAGIAN     String? @db.VarChar(20)
+  CODE       String? @db.VarChar(20)
+  ORIGINATOR String? @db.VarChar(7)
+  CC1        String? @db.VarChar(7)
+  CC2        String? @db.VarChar(7)
+  CC3        String? @db.VarChar(7)
+  CC4        String? @db.VarChar(7)
+  CC5        String? @db.VarChar(7)
+  CC6        String? @db.VarChar(7)
+  CC7        String? @db.VarChar(7)
+  CC8        String? @db.VarChar(7)
+  CC9        String? @db.VarChar(7)
+  CC10       String? @db.VarChar(7)
+
+  @@ignore
+}
+
+model HELPDESK_OTORITAS_MASTER {
+  CODE            String  @id(map: "PK__HELPDESK__AA1D437822634C93") @db.VarChar(20)
+  DESC            String? @db.VarChar(100)
+  ACTIVE          String? @db.VarChar(1)
+  MASTER_HARDWARE String? @db.VarChar(20)
+  BAGIAN          String? @db.VarChar(20)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_PENGAJUAN_MASTER_DETAIL {
+  NOMOR        String?   @db.VarChar(30)
+  LINENUM      Decimal?  @db.Decimal(18, 0)
+  ORDER        String?   @db.VarChar(100)
+  JUMLAH       Decimal?  @db.Decimal(18, 0)
+  KETERANGAN1  String?   @db.VarChar(8000)
+  TGL_TERIMA   DateTime? @db.Date
+  STATUS       String?   @db.VarChar(20)
+  TS           DateTime? @db.Date
+  PIC          String?   @db.VarChar(20)
+  REMARKS      String?   @db.VarChar(8000)
+  FINISHEDDATE DateTime? @db.Date
+  PRINTKE      Decimal?  @db.Decimal(18, 0)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_PENGAJUAN_MASTER_HEADER {
+  NOMOR          String?   @db.VarChar(30)
+  TITLE          String?   @db.VarChar(8000)
+  TIPE           String?   @db.VarChar(20)
+  PRIORITAS      String?   @db.VarChar(20)
+  NAMAFILE       String?   @db.VarChar(200)
+  FILE           Bytes?
+  DARI           String?   @db.VarChar(10)
+  KEPADA         String?   @db.VarChar(5)
+  TGL            DateTime? @db.Date
+  STATUS         String?   @db.VarChar(20)
+  PERTIMBANGAN   String?   @db.VarChar(8000)
+  CC1            String?   @db.VarChar(20)
+  AC1            String?   @db.VarChar(15)
+  CC2            String?   @db.VarChar(20)
+  AC2            String?   @db.VarChar(15)
+  CC3            String?   @db.VarChar(20)
+  AC3            String?   @db.VarChar(15)
+  FINISHEDDATE   DateTime? @db.Date
+  RTB1           String?   @db.VarChar(8000)
+  RTB2           String?   @db.VarChar(8000)
+  RTB3           String?   @db.VarChar(8000)
+  RTBREJECT      String?   @db.VarChar(8000)
+  TGL_TERIMA     DateTime? @db.Date
+  USER_PRINT     String?   @db.VarChar(300)
+  KALI_PRINT     Decimal?  @db.Decimal(18, 0)
+  CC4            String?   @db.VarChar(20)
+  AC4            String?   @db.VarChar(15)
+  CC5            String?   @db.VarChar(20)
+  AC5            String?   @db.VarChar(15)
+  CC6            String?   @db.VarChar(20)
+  AC6            String?   @db.VarChar(15)
+  RTB4           String?   @db.VarChar(8000)
+  RTB5           String?   @db.VarChar(8000)
+  RTB6           String?   @db.VarChar(8000)
+  NAMAFILE1      String?   @db.VarChar(200)
+  FILE1          Bytes?
+  NAMAFILE2      String?   @db.VarChar(200)
+  FILE2          Bytes?
+  NAMAFILE3      String?   @db.VarChar(200)
+  FILE3          Bytes?
+  NAMAFILE4      String?   @db.VarChar(200)
+  FILE4          Bytes?
+  NAMAFILE5      String?   @db.VarChar(200)
+  FILE5          Bytes?
+  NAMAFILE6      String?   @db.VarChar(200)
+  FILE6          Bytes?
+  RTBREVISI      String?   @db.VarChar(8000)
+  TGLAC1         DateTime? @db.Date
+  TGLAC2         DateTime? @db.Date
+  TGLAC3         DateTime? @db.Date
+  TGLAC4         DateTime? @db.Date
+  TGLAC5         DateTime? @db.Date
+  TGLAC6         DateTime? @db.Date
+  CC7            String?   @db.VarChar(20)
+  AC7            String?   @db.VarChar(15)
+  CC8            String?   @db.VarChar(20)
+  AC8            String?   @db.VarChar(15)
+  CC9            String?   @db.VarChar(20)
+  AC9            String?   @db.VarChar(15)
+  CC10           String?   @db.VarChar(20)
+  AC10           String?   @db.VarChar(15)
+  RTB7           String?   @db.VarChar(8000)
+  RTB8           String?   @db.VarChar(8000)
+  RTB9           String?   @db.VarChar(8000)
+  RTB10          String?   @db.VarChar(8000)
+  NAMAFILE7      String?   @db.VarChar(200)
+  FILE7          Bytes?
+  NAMAFILE8      String?   @db.VarChar(200)
+  FILE8          Bytes?
+  NAMAFILE9      String?   @db.VarChar(200)
+  FILE9          Bytes?
+  NAMAFILE10     String?   @db.VarChar(200)
+  FILE10         Bytes?
+  TGLAC7         DateTime? @db.Date
+  TGLAC8         DateTime? @db.Date
+  TGLAC9         DateTime? @db.Date
+  TGLAC10        DateTime? @db.Date
+  PIC1           String?   @db.VarChar(20)
+  PIC2           String?   @db.VarChar(20)
+  PIC3           String?   @db.VarChar(20)
+  PIC4           String?   @db.VarChar(20)
+  PIC5           String?   @db.VarChar(20)
+  PIC6           String?   @db.VarChar(20)
+  PIC7           String?   @db.VarChar(20)
+  PIC8           String?   @db.VarChar(20)
+  PIC9           String?   @db.VarChar(20)
+  PIC10          String?   @db.VarChar(20)
+  NAMAFILEKEPADA String?   @db.VarChar(200)
+  FILEKEPADA     Bytes?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_PENGAJUAN_MASTER_LOG {
+  NOMOR String?   @db.VarChar(20)
+  TGL   DateTime? @db.DateTime
+  USER  String?   @db.VarChar(10)
+  KET   String?   @db.VarChar(2000)
+
+  @@ignore
+}
+
+model HELPDESK_SERVICE_TYPE {
+  CODE   String  @id(map: "PK__HELPDESK__AA1D43789519B483") @db.VarChar(20)
+  DESC   String? @db.VarChar(100)
+  ACTIVE String? @db.VarChar(1)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HELPDESK_SIGN {
+  NO String? @db.VarChar(30)
+
+  @@ignore
+}
+
+model HELPDESK_USER {
+  USERNAME String  @id(map: "PK__HELPDESK__B15BE12FF7C49722") @db.VarChar(10)
+  PASSWORD Bytes?  @db.VarBinary(8000)
+  SUPERIOR String? @db.NVarChar(10)
+  SALT     String? @db.VarChar(10)
+  LVL      String? @db.VarChar(50)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model INC_NUM {
+  NUM String @db.VarChar(11)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model KILLSWITCH {
+  APP    String? @db.VarChar(50)
+  SWITCH String? @db.VarChar(1)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_ATTACHMENT {
+  NOMOR     String? @db.VarChar(11)
+  LINENUM   Int?
+  FILE_PATH String? @db.VarChar(512)
+  NB        String? @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_CC {
+  NOMOR     String?   @db.VarChar(11)
+  LINENUM   Int?
+  CC        String?   @db.VarChar(10)
+  AC        String?   @db.Char(1)
+  TGLAC     DateTime? @db.Date
+  RTB       String?   @db.Text
+  PIC       String?   @db.VarChar(10)
+  FILE_NAME String?   @db.VarChar(256)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_DETAIL {
+  NOMOR             String?   @db.VarChar(11)
+  LINENUM           Int?
+  JENIS_KELUHAN     String?   @db.VarChar(20)
+  KODE_PRODUK       String?   @db.VarChar(20)
+  NAMA_PRODUK       String?   @db.VarChar(256)
+  JUMLAH            Int?
+  SATUAN            String?   @db.VarChar(20)
+  KELUHAN           String?   @db.Text
+  KONDISI_BARANG    String?   @db.VarChar(20)
+  TANGGAL_PEMBELIAN DateTime? @db.Date
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_HEADER {
+  NOMOR                        String?   @db.VarChar(11)
+  NO_REFERENSI                 String?   @db.VarChar(256)
+  PENERBIT                     String?   @db.VarChar(20)
+  CABANG                       String?   @db.VarChar(10)
+  KELUHAN_VIA                  String?   @db.VarChar(256)
+  KELUHAN_OLEH                 String?   @db.VarChar(256)
+  REGION                       String?   @db.VarChar(10)
+  ALAMAT                       String?   @db.Text
+  KOTA                         String?   @db.VarChar(256)
+  CONTACT_PERSON               String?   @db.VarChar(256)
+  JALUR_EKSPEDISI              String?   @db.VarChar(256)
+  STATUS                       String?   @db.VarChar(50)
+  TANGGAL_BUKA                 DateTime? @db.Date
+  TANGGAL_TERBIT               DateTime? @db.Date
+  TANGGAL_ANALISA              DateTime? @db.Date
+  TANGGAL_SELESAI              DateTime? @db.Date
+  PENGAJUAN_RESPON_AKHIR       String?   @db.Text
+  OTORITAS_RESPON_AKHIR        String?   @db.VarChar(10)
+  AL                           String?   @db.VarChar(10)
+  AC_AL                        String?   @db.Char(1)
+  TGL_AC_AL                    DateTime? @db.Date
+  NB_AL                        String?   @db.Text
+  AC_CCH                       String?   @db.Char(1)
+  TGL_AC_CCH                   DateTime? @db.Date
+  NB_CCH                       String?   @db.Text
+  AC_OTORITAS                  String?   @db.Char(1)
+  TGL_AC_OTORITAS              DateTime? @db.Date
+  NB_OTORITAS                  String?   @db.Text
+  AC_CUSTOMER                  String?   @db.Char(1)
+  TGL_AC_CUSTOMER              DateTime? @db.Date
+  NB_CUSTOMER                  String?   @db.Text
+  SERVICE_OLEH                 String?   @db.VarChar(256)
+  ANALIS_KELUHAN               String?   @db.VarChar(10)
+  PIC_ANALISA_KELUHAN          String?   @db.VarChar(10)
+  KATEGORI_KELUHAN             String?   @db.VarChar(256)
+  MASALAH                      String?   @db.VarChar(256)
+  ANALISA_PENYELIDIKAN         String?   @db.Text
+  TINDAKAN_PENCEGAHAN          String?   @db.Text
+  AC_CCH_RESPON_AKHIR          String?   @db.Char(1)
+  TGL_AC_CCH_RESPON_AKHIR      DateTime? @db.Date
+  NB_CCH_RESPON_AKHIR          String?   @db.Text
+  NB_REVISI                    String?   @db.Text
+  NB_REJECT                    String?   @db.Text
+  TANGGAL_SELESAI_RESPON_AKHIR DateTime? @db.Date
+  NB_SELESAI_RESPON_AKHIR      String?   @db.Text
+  UPDATE_PROGRESS              String?   @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_MASTER_MASALAH {
+  MASALAH String? @db.VarChar(100)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_PENANGANAN {
+  NOMOR                String?   @db.VarChar(11)
+  LINENUM              Int?
+  BAGIAN               String?   @db.VarChar(10)
+  AL                   String?   @db.VarChar(10)
+  PIC                  String?   @db.VarChar(10)
+  ANALISA_PENYELIDIKAN String?   @db.Text
+  TINDAKAN_PENCEGAHAN  String?   @db.Text
+  TS                   DateTime? @db.Date
+  STATUS_APPLIED       String?   @db.VarChar(20)
+  STATUS_VERIFIED      String?   @db.VarChar(20)
+  TANGGAL_TERIMA       DateTime? @db.Date
+  TANGGAL_KEMBALI      DateTime? @db.Date
+  TANGGAL_CLOSING      DateTime? @db.Date
+  TANGGAL_SELESAI      DateTime? @db.Date
+  FILE_NAME            String?   @db.VarChar(256)
+  CLOSING_EVIDENCE     String?   @db.Text
+  HASIL_VERIFIKASI     String?   @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model PKP_VERIFICATION {
+  NOMOR              String?   @db.VarChar(11)
+  LINENUM_PENANGANAN Int?
+  PHASE              Int?
+  LINENUM            Int?
+  VERIFICATOR        String?   @db.VarChar(20)
+  BAGIAN             String?   @db.VarChar(10)
+  VERIFIED           String?   @db.VarChar(50)
+  TANGGAL_VERIF      DateTime? @db.Date
+  PIC                String?   @db.VarChar(10)
+  NB                 String?   @db.Text
+  FILE_NAME          String?   @db.VarChar(256)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKM_CC {
+  NOMOR     String?   @db.Char(9)
+  PHASE     Int?
+  LINENUM   Int?
+  CC        String?   @db.VarChar(10)
+  AC        String?   @db.VarChar(10)
+  TGLAC     DateTime? @db.Date
+  RTB       String?   @db.Text
+  PIC       String?   @db.VarChar(10)
+  FILE_NAME String?   @db.VarChar(256)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKM_DETAIL {
+  NOMOR    String? @db.Char(9)
+  LINENUM  Int?
+  ITEMCODE String? @db.VarChar(256)
+  ITEMNAME String? @db.VarChar(256)
+  KELUHAN  String? @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKM_HEADER {
+  NOMOR           String?   @db.Char(9)
+  NO_REFERENSI    String?   @db.VarChar(256)
+  JENIS           String?   @db.VarChar(16)
+  LINGKUP         String?   @db.VarChar(16)
+  KATEGORI        String?   @db.VarChar(32)
+  DARI            String?   @db.VarChar(10)
+  STATUS          String?   @db.VarChar(16)
+  FILE_NAME       String?   @db.VarChar(512)
+  CARDCODE        String?   @db.VarChar(20)
+  CARDNAME        String?   @db.VarChar(256)
+  TANGGAL_BUKA    DateTime? @db.Date
+  TANGGAL_TERBIT  DateTime? @db.Date
+  TANGGAL_TERIMA  DateTime? @db.Date
+  TANGGAL_EXPIRED DateTime? @db.Date
+  TANGGAL_SELESAI DateTime? @db.Date
+  NB_REVISI       String?   @db.Text
+  NB_REJECT       String?   @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKM_PENANGANAN {
+  NOMOR                       String    @db.Char(9)
+  LINENUM                     Int
+  BAGIAN                      String?   @db.VarChar(8)
+  AL                          String?   @db.VarChar(32)
+  AAL                         String?   @db.VarChar(32)
+  PENYEBAB                    String?   @db.Text
+  KOREKSI                     String?   @db.Text
+  TS_KOREKSI                  DateTime? @db.Date
+  PENCEGAHAN                  String?   @db.Text
+  TS_PENCEGAHAN_APPLIED       DateTime? @db.Date
+  TS_PENCEGAHAN_VERIFIED      DateTime? @db.Date
+  STATUS_APPLIED              String?   @db.VarChar(20)
+  STATUS_VERIFIED             String?   @db.VarChar(20)
+  TANGGAL_TERIMA              DateTime? @db.Date
+  TANGGAL_KEMBALI             DateTime? @db.Date
+  TANGGAL_SELESAI             DateTime? @db.Date
+  PIC                         String?   @db.VarChar(10)
+  FILE_NAME                   String?   @db.VarChar(256)
+  KETERANGAN_INFO_KE_SUPPLIER String?   @db.Text
+  RTB_PERPANJANGAN_TS         String?   @db.Text
+  DATA_PENDUKUNG_VERIFIKASI   String?   @db.Text
+  UPDATE_PROGRESS             String?   @db.Text
+  HASIL_VERIFIKASI            String?   @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKM_VERIFICATION {
+  NOMOR              String?   @db.Char(9)
+  LINENUM_PENANGANAN Int?
+  LINENUM            Int?
+  VERIFICATOR        String?   @db.VarChar(20)
+  BAGIAN             String?   @db.VarChar(10)
+  VERIFIED           String?   @db.Char(1)
+  TANGGAL_VERIF      DateTime? @db.Date
+  NB                 String?   @db.Text
+  FILE_NAME          String?   @db.VarChar(256)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKP_BAGIAN {
+  BAGIAN String? @db.VarChar(50)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKP_DETAIL {
+  NOSKP        String?  @db.VarChar(20)
+  LINENUM      Decimal? @db.Decimal(5, 0)
+  KODE         String?  @db.VarChar(50)
+  NAMA         String?  @db.VarChar(300)
+  JUMLAH       Decimal? @db.Decimal(18, 0)
+  SATUAN       String?  @db.VarChar(50)
+  LVL          Decimal? @db.Decimal(1, 0)
+  STATUS       String?  @db.VarChar(20)
+  OTORITAS     String?  @db.VarChar(10)
+  PENYIMPANGAN String?  @db.VarChar(150)
+  ITEMGRUP     String?  @db.VarChar(400)
+  MUTU         Boolean?
+  VISUAL       Boolean?
+  NOCOIL       String?  @db.VarChar(200)
+  KETERANGAN   String?  @db.VarChar(8000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKP_GAMBAR {
+  NOSKP   String  @db.VarChar(40)
+  LINENUM String? @db.VarChar(40)
+  GAMBAR  Bytes?  @db.Image
+  NOTE    String? @db.VarChar(3000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKP_HEADER {
+  NOSKP              String    @db.VarChar(40)
+  QUALITY            String?   @db.VarChar(1)
+  VISUAL             String?   @db.VarChar(1)
+  COST               String?   @db.VarChar(1)
+  TANGGAL            DateTime? @db.Date
+  INCOMING           String?   @db.VarChar(1)
+  INPROCESS          String?   @db.VarChar(1)
+  PTS                String?   @db.VarChar(1)
+  KASUS              String?   @db.VarChar(1)
+  BERULANG           String?   @db.VarChar(5000)
+  PENGALIHAN         String?   @db.VarChar(800)
+  NOLAP              String?   @db.VarChar(80)
+  RTBSUPPLIER        String?   @db.VarChar(1000)
+  COA                String?   @db.VarChar(500)
+  COAFILE            Bytes?
+  FAB                String?   @db.VarChar(500)
+  DSTPTS             String?   @db.VarChar(1000)
+  RPPTS              String?   @db.VarChar(1000)
+  BERLAKU            DateTime? @db.Date
+  BAGIAN             String?   @db.VarChar(1)
+  BAGIAN1            String?   @db.VarChar(100)
+  BAGIAN2            String?   @db.VarChar(400)
+  TANDATANGAN        Bytes?    @db.Image
+  TANGGALTANDATANGAN DateTime? @db.Date
+  ANALISA1           String?   @db.VarChar(1000)
+  TGL1               DateTime? @db.Date
+  BGN1               String?   @db.VarChar(20)
+  PARAF1             Bytes?    @db.Image
+  TANGGALPARAF1      DateTime? @db.Date
+  ANALISA2           String?   @db.VarChar(1000)
+  TGL2               DateTime? @db.Date
+  BGN2               String?   @db.VarChar(20)
+  PARAF2             Bytes?    @db.Image
+  TANGGALPARAF2      DateTime? @db.Date
+  KESIMPULAN1        String?   @db.VarChar(500)
+  KESIMPULAN2        String?   @db.VarChar(500)
+  KEPUTUSAN1         String?   @db.VarChar(500)
+  KEPUTUSAN2         String?   @db.VarChar(500)
+  KEPUTUSAN3         String?   @db.VarChar(500)
+  PARAF3             Bytes?    @db.Image
+  TANGGALPARAF3      DateTime? @db.Date
+  PARAF4             Bytes?    @db.Image
+  TANGGALPARAF4      DateTime? @db.Date
+  PARAF5             Bytes?    @db.Image
+  TANGGALPARAF5      DateTime? @db.Date
+  PARAF6             Bytes?    @db.Image
+  TANGGALPARAF6      DateTime? @db.Date
+  PARAF7             Bytes?    @db.Image
+  TANGGALPARAF7      DateTime? @db.Date
+  PARAF8             Bytes?    @db.Image
+  TANGGALPARAF8      DateTime? @db.Date
+  RTB1               String?   @db.VarChar(8000)
+  RTB2               String?   @db.VarChar(8000)
+  RTB3               String?   @db.VarChar(8000)
+  RTB4               String?   @db.VarChar(8000)
+  PARAF9             Bytes?    @db.Image
+  PARAF10            Bytes?    @db.Image
+  PARAF11            Bytes?    @db.Image
+  PARAF12            Bytes?    @db.Image
+  PARAF13            Bytes?    @db.Image
+  PARAF14            Bytes?    @db.Image
+  PARAF15            Bytes?    @db.Image
+  PARAF16            Bytes?    @db.Image
+  PARAF17            Bytes?    @db.Image
+  EXTEND1            DateTime? @db.Date
+  EXTEND2            DateTime? @db.Date
+  EXTEND3            DateTime? @db.Date
+  KELOLOSAN          String?   @db.VarChar(1)
+  USER               String?   @db.VarChar(10)
+  EXTEND4            DateTime? @db.Date
+  EXTEND5            DateTime? @db.Date
+  EXTEND6            DateTime? @db.Date
+  RTB5               String?   @db.VarChar(8000)
+  STATUS             String?   @db.VarChar(10)
+  RTB6               String?   @db.VarChar(8000)
+  TGL_UPDATE         DateTime? @db.Date
+  PARAF18            Bytes?    @db.Image
+  PARAF19            Bytes?    @db.Image
+  PARAF20            Bytes?    @db.Image
+  EXTEND7            DateTime? @db.Date
+  EXTEND8            DateTime? @db.Date
+  NAMAFILE1          String?   @db.VarChar(200)
+  FILE1              Bytes?
+  NAMAFILE2          String?   @db.VarChar(200)
+  FILE2              Bytes?
+  NAMAFILE3          String?   @db.VarChar(200)
+  FILE3              Bytes?
+  NAMAFILE4          String?   @db.VarChar(200)
+  FILE4              Bytes?
+  RTBE1              String?   @db.VarChar(8000)
+  RTBE2              String?   @db.VarChar(8000)
+  RTBE3              String?   @db.VarChar(8000)
+  RTBE4              String?   @db.VarChar(8000)
+  PARAF21            Bytes?    @db.Image
+  TANGGALPARAF21     DateTime? @db.Date
+  KEPUTUSANWGM       String?   @db.VarChar(500)
+  RTBWGM             String?   @db.VarChar(8000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SKP_USER {
+  USERNAME String   @db.NChar(10)
+  PASSWORD String   @db.NVarChar(50)
+  LVL      Decimal? @db.Decimal(18, 0)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_DETAIL {
+  NOMOR   String?  @db.VarChar(20)
+  LINENUM Decimal? @db.Decimal(18, 0)
+  JENIS   String?  @db.VarChar(8000)
+  DASAR   String?  @db.VarChar(8000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_HEADER {
+  NOMOR        String?   @db.VarChar(20)
+  DARI         String?   @db.VarChar(10)
+  TGL          DateTime? @db.Date
+  STATUS       String?   @db.VarChar(20)
+  NAMAFILE     String?   @db.VarChar(200)
+  FILE         Bytes?
+  FINISHEDDATE DateTime? @db.Date
+  CC1          String?   @db.VarChar(20)
+  AC1          String?   @db.VarChar(15)
+  TGLAC1       DateTime? @db.Date
+  RTB1         String?   @db.VarChar(8000)
+  NAMAFILE1    String?   @db.VarChar(200)
+  FILE1        Bytes?
+  CC2          String?   @db.VarChar(20)
+  AC2          String?   @db.VarChar(15)
+  TGLAC2       DateTime? @db.Date
+  RTB2         String?   @db.VarChar(8000)
+  NAMAFILE2    String?   @db.VarChar(200)
+  FILE2        Bytes?
+  CC3          String?   @db.VarChar(20)
+  AC3          String?   @db.VarChar(15)
+  TGLAC3       DateTime? @db.Date
+  RTB3         String?   @db.VarChar(8000)
+  NAMAFILE3    String?   @db.VarChar(200)
+  FILE3        Bytes?
+  CC4          String?   @db.VarChar(20)
+  AC4          String?   @db.VarChar(15)
+  TGLAC4       DateTime? @db.Date
+  RTB4         String?   @db.VarChar(8000)
+  NAMAFILE4    String?   @db.VarChar(200)
+  FILE4        Bytes?
+  CC5          String?   @db.VarChar(20)
+  AC5          String?   @db.VarChar(15)
+  TGLAC5       DateTime? @db.Date
+  RTB5         String?   @db.VarChar(8000)
+  NAMAFILE5    String?   @db.VarChar(200)
+  FILE5        Bytes?
+  CC6          String?   @db.VarChar(20)
+  AC6          String?   @db.VarChar(15)
+  TGLAC6       DateTime? @db.Date
+  RTB6         String?   @db.VarChar(8000)
+  NAMAFILE6    String?   @db.VarChar(200)
+  FILE6        Bytes?
+  CC7          String?   @db.VarChar(20)
+  AC7          String?   @db.VarChar(15)
+  TGLAC7       DateTime? @db.Date
+  RTB7         String?   @db.VarChar(8000)
+  NAMAFILE7    String?   @db.VarChar(200)
+  FILE7        Bytes?
+  CC8          String?   @db.VarChar(20)
+  AC8          String?   @db.VarChar(15)
+  TGLAC8       DateTime? @db.Date
+  RTB8         String?   @db.VarChar(8000)
+  NAMAFILE8    String?   @db.VarChar(200)
+  FILE8        Bytes?
+  CC9          String?   @db.VarChar(20)
+  AC9          String?   @db.VarChar(15)
+  TGLAC9       DateTime? @db.Date
+  RTB9         String?   @db.VarChar(8000)
+  NAMAFILE9    String?   @db.VarChar(200)
+  FILE9        Bytes?
+  CC10         String?   @db.VarChar(20)
+  AC10         String?   @db.VarChar(15)
+  TGLAC10      DateTime? @db.Date
+  RTB10        String?   @db.VarChar(8000)
+  NAMAFILE10   String?   @db.VarChar(200)
+  FILE10       Bytes?
+  RTBREJECT    String?   @db.VarChar(8000)
+  TGL_TERIMA   DateTime? @db.Date
+  RTBREVISI    String?   @db.VarChar(8000)
+  JAM          String?   @db.VarChar(20)
+  CC11         String?   @db.VarChar(20)
+  AC11         String?   @db.VarChar(15)
+  TGLAC11      DateTime? @db.Date
+  RTB11        String?   @db.VarChar(8000)
+  NAMAFILE11   String?   @db.VarChar(200)
+  FILE11       Bytes?
+  CC12         String?   @db.VarChar(20)
+  AC12         String?   @db.VarChar(15)
+  TGLAC12      DateTime? @db.Date
+  RTB12        String?   @db.VarChar(8000)
+  NAMAFILE12   String?   @db.VarChar(200)
+  FILE12       Bytes?
+  CC13         String?   @db.VarChar(20)
+  AC13         String?   @db.VarChar(15)
+  TGLAC13      DateTime? @db.Date
+  RTB13        String?   @db.VarChar(8000)
+  NAMAFILE13   String?   @db.VarChar(200)
+  FILE13       Bytes?
+  CC14         String?   @db.VarChar(20)
+  AC14         String?   @db.VarChar(15)
+  TGLAC14      DateTime? @db.Date
+  RTB14        String?   @db.VarChar(8000)
+  NAMAFILE14   String?   @db.VarChar(200)
+  FILE14       Bytes?
+  CC15         String?   @db.VarChar(20)
+  AC15         String?   @db.VarChar(15)
+  TGLAC15      DateTime? @db.Date
+  RTB15        String?   @db.VarChar(8000)
+  NAMAFILE15   String?   @db.VarChar(200)
+  FILE15       Bytes?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_PRINT {
+  NOMOR String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_PRINT1 {
+  NOMOR String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_PRINT2 {
+  NOMOR String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_PRINT3 {
+  NOMOR String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_SIGN {
+  NO String? @db.VarChar(30)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SPNR_USER {
+  USERNAME String @db.NChar(10)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TEST_LOAD {
+  JUDUL  String? @db.VarChar(8000)
+  KODE   String? @db.VarChar(8000)
+  KEPADA String? @db.VarChar(8000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model WILAYAH {
+  KECAMATAN      String? @db.VarChar(100)
+  KABUPATEN_KOTA String? @db.VarChar(100)
+  PROVINSI       String? @db.VarChar(100)
+
+  @@ignore
 }

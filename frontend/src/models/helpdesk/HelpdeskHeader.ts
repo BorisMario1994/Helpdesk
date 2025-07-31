@@ -160,7 +160,7 @@ class HelpdeskHeader {
   // Method to download file from database associated with current helpdesk's number and with the filename
   // of the one's passed on the parameter when calling this method. 
   downloadFile = async (filename: string) => {
-    const response = await api.apiInstance.get(`/helpdesk/download/${this.nomor}/${filename}`, {
+    const response = await api.apiInstance.get(`/helpdesk/download/${this.nomor}/${encodeURIComponent(filename)}`, {
       responseType: 'blob' // very important!
     });
 

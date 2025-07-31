@@ -1,4 +1,4 @@
-import HelpdeskHeaderModel from "../models/helpdesk/HelpdeskHeader";
+import HelpdeskHeaderModel from "../models/helpdesk/HelpdeskHeaderModel";
 import HelpdeskDetailsModel from "../models/helpdesk/HelpdeskDetails";
 import HelpdeskCcModel from "../models/helpdesk/HelpdeskCc";
 import HelpdeskNoteModel from "../models/helpdesk/HelpdeskNote";

@@ -80,7 +80,7 @@ const HelpdeskCcListPanel = forwardRef<HelpdeskCcListPanelRef, HelpdeskCcListPan
   const removeNewCc = (linenum: number) => {
     const updatedCcList = [...newCcList];
     updatedCcList.splice(linenum - predefinedCcList.length, 1);
-    updatedCcList.forEach((cc, index = predefinedCcList.length) => cc.linenum = index);
+    updatedCcList.forEach((cc, index) => cc.linenum = predefinedCcList.length + index);
     setNewCcList(updatedCcList);
   };
 

@@ -156,7 +156,7 @@ const HelpdeskFooterPanel = forwardRef<HelpdeskFooterPanelRef, HelpdeskFooterPan
               <div className="flex flex-col gap-5 p-2 text-xs">
                 {
                   existingNoteList.map((note, index) =>
-                    ["revision_done", "reply_revision_done", "revision_recipient", "rejected_recipient", "reopen_publisher", "reopen_recipient"].includes(note.comment) || ["requesting_review_cc", "revision_cc", "rejected_cc", "reopen_cc"].includes(note.comment.substring(0, note.comment.indexOf("cc") + 2)) ?
+                    ["revision_done", "reply_revision_done", "revision_recipient", "rejected_recipient", "reopen_publisher", "reopen_recipient"].includes(note.comment) || ["requesting_review_cc", "approved_cc", "revision_cc", "rejected_cc", "reopen_cc"].includes(note.comment.substring(0, note.comment.indexOf("cc") + 2)) ?
                     <p key={note.linenum} className="max-w-3/4 self-center text-center text-xs text-gray-700 font-semibold">
                       {
                         note.comment === "revision_done" ? "Helpdesk was revised by publisher (" + note.username + ") on " + dateFormatter(note.tanggal) :  
