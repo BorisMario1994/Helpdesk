@@ -27,7 +27,7 @@ const app: Express = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(morgan('tiny'));
-app.use(cors({ origin: "http://192.168.52.27", credentials: true }));
+app.use(cors({ origin: "http://192.168.52.27:80", credentials: true }));
 app.use(compression());
 app.use(helmet());
 
