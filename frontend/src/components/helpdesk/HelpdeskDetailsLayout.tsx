@@ -93,10 +93,10 @@ export function HelpdeskDetailsLayout({ details, remarks = "", orderMasterList, 
             details.noteList.map((note, index) => 
               note.username === "system" ?
               <p key={index} className="my-2 shrink-0 mt-1 text-center font-semibold">{note.comment.concat(` on ${shortDateFormatter(note.tanggal)}`)}</p>
-              :
+              : 
               <div key={index} className="flex flex-col items-start gap-1">
                 <p className="shrink-0 mt-1 font-semibold">{`${note.username} (${shortDateFormatter(note.tanggal)}):`}</p>
-                <pre className="px-3 py-1 border border-gray-400 rounded-full">{note.comment}</pre>
+                <pre className="px-3 py-1 border border-gray-400 whitespace-pre-wrap">{note.comment}</pre>
               </div>
             )
           }

@@ -206,7 +206,7 @@ helpdeskRouter.get("/download/:nomor/:filename", (req, res) => {
     res.status(404).json({ message: 'File not found' });
 		return;
   }
-
+  console.log('tes')
   res.download(filePath, req.params.filename, (err) => {
     if (err) {
       console.error('Error downloading file:', err);

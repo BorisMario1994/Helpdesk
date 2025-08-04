@@ -14,7 +14,7 @@ class AssetMaster {
   };  
 
   static getAssetMasterList = async () => {
-    const obj: { ItemCode: string, ItemName: string }[] = await prisma.$queryRaw`SELECT A.ItemCode, A.ItemName FROM SAPHCL.HOCK.DBO.OITM A INNER JOIN SAPHCL.HOCK.DBO.[@HCL_LOKFA] B ON A.ItemCode = B.U_KODE_ITEM WHERE B.U_ACTIVE = 'Y'`;
+    const obj: { ItemCode: string, ItemName: string }[] = await prisma.$queryRaw`SELECT A.ItemCode, A.ItemName FROM SAPHCL.HOCK.DBO.OITM A INNER JOIN SAPHCL.HOCK.DBO.[@HCL_LOKFA] B ON A.ItemCode = B.U_KODE_ITEM WHERE B.U_ACTIVE = 'Y' ORDER BY A.ITEMCODE`;
     return obj.map(item => new AssetMaster(item.ItemCode, item.ItemName));
   };
   /*

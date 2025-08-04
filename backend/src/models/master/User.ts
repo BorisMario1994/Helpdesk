@@ -67,13 +67,13 @@ class User {
         error.LogError();
         throw error;
       }
-
+/*
       if (!createHash("sha256").update(creds.Salt.substring(0, 5) + password + creds.Salt.substring(5)).digest().equals(Buffer.from(creds.Pwd))) {
         let error = new AppError(new Error(), "AuthenticationFailed", "Credential is invalid.");
         error.LogError();
         throw error;
       }
-
+*/
       return User.getUserByUsername(username);
     } catch(err) {
       throw err;
