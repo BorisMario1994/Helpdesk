@@ -454,6 +454,7 @@ export function ManageHelpdeskPage() {
   };
 
   const printFab = async () => {
+
     window.open(`http://192.168.52.34/REPORTS/report/Data%20Sources/REPORT/HELPDESK?rs:Command=Render&NOMOR=${helpdeskHeader.nomor}`, "_blank");
   };
 
@@ -508,7 +509,6 @@ export function ManageHelpdeskPage() {
       }
       else
         showInformationDialog("Not Authorized", "Current account is not authorized to open this Helpdesk. You will be redirected to main page.");
-
 
       if (mode === "revision") {
         if (helpdeskHeader.status !== "REVISION" || helpdeskHeader.dari !== auth.scope?.username) 
