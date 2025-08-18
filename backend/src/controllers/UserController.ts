@@ -16,6 +16,10 @@ export default {
     return User.getUserDeptHead(username);
   },
 
+  getUserSupHead: async (username: string) => {
+    return User.getUserSupHead(username);
+  },
+
   // Function to create User data by checking the availability of "username" provided by requester before inserting it.
   // Insert method is available for objects of User class. If the "username" exists, then it will create a custom error
   // and throw it to router to send error code response to client. Other error will be threw directly to router.

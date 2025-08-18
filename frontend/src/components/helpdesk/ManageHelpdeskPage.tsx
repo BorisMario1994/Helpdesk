@@ -40,6 +40,7 @@ export function ManageHelpdeskPage() {
   const [bagianList, setBagianList] = useState<BagianMaster[]>([]);
   const [userList, setUserList] = useState<User[]>([]);
   const [publisherDeptHead, setPublisherDeptHead] = useState("");
+  const [feedbackCCSupHead, setfeedbackCCSupHead] = useState("");
   
   const helpdeskInfoPanelRef = useRef<HelpdeskInfoPanelRef>(null);
   const helpdeskDetailsListPanelRef = useRef<HelpdeskDetailsListPanelRef>(null);
@@ -72,10 +73,12 @@ export function ManageHelpdeskPage() {
   const [informationDialogOpen, setInformationDialogOpen] = useState(false);
   const [informationDialogTitle, setInformationDialogTitle] = useState("");
   const [informationDialogMessage, setInformationDialogMessage] = useState("");
+  const [informationDialogRedirectOnClose, setInformationDialogRedirectOnClose] = useState(false);
 
   const [loadingDialogOpen, setLoadingDialogOpen] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [successDialogNomorHelpdesk, setSuccessDialogNomorHelpdesk] = useState("");
+
   
   const loadRequiredData = async () => {
     try {
@@ -112,11 +115,14 @@ export function ManageHelpdeskPage() {
     }
   };
 
-  const showInformationDialog = (title: string, message: string) => {
+  const showInformationDialog = (title: string, message: string, redirectOnClose: boolean = false) => {
     setInformationDialogTitle(title);
     setInformationDialogMessage(message);
+    setInformationDialogRedirectOnClose(redirectOnClose);
     setInformationDialogOpen(true);
   };
+
+  
 
   const showConfirmationDialog = (context: string, title: string, message: string, button: "YesNo" | "ConfirmCancel") => {
     setConfirmationDialogContext(context);
@@ -128,7 +134,8 @@ export function ManageHelpdeskPage() {
 
   const closeInformationDialog = () => {
     setInformationDialogOpen(false);
-    navigate("/helpdesk/main/all", { replace: true });
+    if (informationDialogRedirectOnClose)
+      navigate("/helpdesk/main/all", { replace: true });
   };
 
   const downloadFile = async (fileName: string) => {
@@ -214,6 +221,13 @@ export function ManageHelpdeskPage() {
   };
 
   const submitClicked = async () => {
+
+   /*   console.log("=== Submit Clicked ===");
+     console.log("context:", context);
+    console.log("currentRole:", currentRole); */
+    // console.log("helpdeskHeader:", helpdeskHeader);
+    // console.log("auth:", auth);
+    
     if (context === "revision_info" && helpdeskHeader.status === "REVISION" && helpdeskHeader.dari === auth.scope?.username) {
       navigate(`/helpdesk/revision/${helpdeskHeader.nomor}`);
       return;
@@ -224,10 +238,14 @@ export function ManageHelpdeskPage() {
 
     else if (context === "revision_info" && (!helpdeskFooterPanelRef.current!.validateFooterData() || !helpdeskFooterPanelRef.current!.checkReplyMessageExist())) 
       return;
-
     else if (context.substring(0, 10) === "ccFeedback" && currentRole === "cc") {
       const updatedCc = helpdeskCcListPanelRef.current!.retriveUpdatedCcData();
       const footerData = helpdeskFooterPanelRef.current!.retrieveFooterData();
+
+      if (updatedCc.ac === "NO ACTION") {
+        showInformationDialog("Action Required", "User must choose an action before submit");
+        return;
+      }
       
       if ((["REVISION", "REJECT", "REQUESTING REVIEW"].includes(updatedCc.ac) || (helpdeskHeader.ccList.find(cc => cc.cc === "MGMG" && cc.ac === "REQUESTING REVIEW") && helpdeskHeader.noteList.filter(note => note.comment.indexOf("requesting_review") >= 0).pop()?.mentions.includes(auth.scope?.username.substring(0, 4) || "") && auth.scope?.superior.substring(0, 4) === "MGMG")) && footerData.message.trim().length <= 0) {
         showToast("Please add a comment.");
@@ -322,7 +340,7 @@ export function ManageHelpdeskPage() {
         await createOrUpdateHelpdeskHeader();
       else if (context === "revision_info")
         await updateHelpdeskFromDeptHead();
-      else if (context.substring(0, 10) === "ccFeedback" && ["cc", "ccPic"].includes(currentRole))
+      else if (context.substring(0, 10) === "ccFeedback" && ["cc", "ccPic","ccPicSup"].includes(currentRole))
         await updateCcFeedback();
       else if (context.substring(0, 10) === "ccFeedback" && currentRole === "reviewer") 
         await replyForReview();
@@ -475,9 +493,12 @@ export function ManageHelpdeskPage() {
 
   useEffect(() => {
     loadRequiredData();
+    //console.log("mode change")
   }, [mode]);
 
   useEffect(() => {
+   // console.log("helpdeskheader change")
+
     if (mode === "create") {
       setContext("create");
       setMainRole("publisher");
@@ -485,7 +506,6 @@ export function ManageHelpdeskPage() {
     } else {
       if (helpdeskHeader.nomor.length <= 0)
         return;
-
       const availableMentionList = [...helpdeskHeader.ccList.map(cc => `${cc.cc}${!bagianList.find(bagian => bagian.code === cc.cc) ? "" : (" - " + bagianList.find(bagian => bagian.code === cc.cc)?.descrption)}`)];
       if (auth.scope?.username === "MGMG-01")
         availableMentionList.push(...bagianList.filter(bagian => !availableMentionList.includes(bagian.code + " - " + bagian.descrption) && bagian.isActive).map(bagian => `${bagian.code} - ${bagian.descrption}`), ...userList.filter(user => ["MPBL", "SPBL", "MWGM", "MSSA", "JPJL"].includes(user.username.substring(0, 4)) && user.username.substring(4) !== "-01" && !availableMentionList.includes(user.username)).map(user => user.username));
@@ -510,6 +530,7 @@ export function ManageHelpdeskPage() {
       else
         showInformationDialog("Not Authorized", "Current account is not authorized to open this Helpdesk. You will be redirected to main page.");
 
+    
       if (mode === "revision") {
         if (helpdeskHeader.status !== "REVISION" || helpdeskHeader.dari !== auth.scope?.username) 
           navigate("/helpdesk/main/all", { replace: true });
@@ -522,13 +543,48 @@ export function ManageHelpdeskPage() {
         setCurrentRole(helpdeskHeader.dari === auth.scope?.username ? "publisher" : auth.scope?.username === publisherDeptHead ? "publisher_dept_head" : "");
         setRevisionFromGMG(helpdeskHeader.ccList.find(cc => cc.ac === "REVISION" && cc.cc === "MGMG") !== undefined || (helpdeskHeader.kepada === "MGMG" && helpdeskHeader.ccList.find(cc => cc.ac !== "APPROVE") === undefined));
       } else if (helpdeskHeader.status === "UNPUBLISHED" && helpdeskHeader.ccList.find(cc => cc.ac !== "APPROVE")) {
+        
         const helpdeskCcCurrentIndex = helpdeskHeader.ccList.find(cc => cc.ac !== "APPROVE" && !(helpdeskHeader.ccList.find(cc2 => cc2.linenum < cc.linenum && cc2.ac !== "APPROVE")));
         const requestReviewNoteList = helpdeskHeader.noteList.filter(note => note.comment.substring(0, 20) === "requesting_review_cc");
         const lastRequestReviewMentions = requestReviewNoteList.length > 0 ? requestReviewNoteList[requestReviewNoteList.length - 1].mentions.map(mention => mention.length === 4 ? mention.concat("-01") : mention) : [];
 
         setContext(`ccFeedback${helpdeskCcCurrentIndex?.linenum}`);
-        setCurrentRole([helpdeskCcCurrentIndex?.cc.concat("-01"), helpdeskCcCurrentIndex?.cc].includes(auth.scope?.username) && ["NO ACTION", "REQUESTING REVIEW"].includes(helpdeskCcCurrentIndex?.ac || "") ? "cc" : helpdeskCcCurrentIndex?.ac === auth.scope?.username ? "ccPic" : helpdeskHeader.ccList.find(cc => cc.ac === "REQUESTING REVIEW") && (lastRequestReviewMentions.includes(auth.scope?.username || "")) ? "reviewer" : "");
+    /*     console.log(feedbackCCSupHead)
+        console.log( "a : " ,helpdeskHeader.ccList.find(d => d.linenum === helpdeskCcCurrentIndex?.linenum)?.cc.concat("-01")) */
+        //setCurrentRole([helpdeskCcCurrentIndex?.cc.concat("-01"), helpdeskCcCurrentIndex?.cc].includes(auth.scope?.username) && ["NO ACTION", "REQUESTING REVIEW"].includes(helpdeskCcCurrentIndex?.ac || "") ? "cc" : helpdeskCcCurrentIndex?.ac === auth.scope?.username ? "ccPic" : helpdeskHeader.ccList.find(cc => cc.ac === "REQUESTING REVIEW") && (lastRequestReviewMentions.includes(auth.scope?.username || "")) ? "reviewer" : "");
+        
+setCurrentRole(
+  (
+    [helpdeskCcCurrentIndex?.cc.concat("-01"), helpdeskCcCurrentIndex?.cc].includes(auth.scope?.username) &&
+    ["NO ACTION", "REQUESTING REVIEW"].includes(helpdeskCcCurrentIndex?.ac || "")
+      ? "cc"
+      : helpdeskCcCurrentIndex?.ac === auth.scope?.username
+        ? "ccPic"
+        : helpdeskHeader.ccList.find(cc => cc.ac === "REQUESTING REVIEW") &&
+          lastRequestReviewMentions.includes(auth.scope?.username || "")
+          ? "reviewer"
+          : ""
+  ) || (
+    helpdeskHeader.ccList.find(d => d.linenum === helpdeskCcCurrentIndex?.linenum)?.cc.concat("-01") === feedbackCCSupHead
+      ? "ccPicSup"
+      : ""
+  )
+);
+        
+        
         setNoteFromGMG(helpdeskCcCurrentIndex?.cc === "MGMG" && helpdeskCcCurrentIndex.ac === "REQUESTING REVIEW");
+      
+       // console.log("cc feedback: ", helpdeskCcCurrentIndex?.pic )
+        if (helpdeskCcCurrentIndex?.pic && helpdeskCcCurrentIndex.pic.length > 0) {
+          User.getUserSupHead(helpdeskCcCurrentIndex.pic)
+          .then(username => {
+            //console.log("Fetched Sup head:", username);
+            setfeedbackCCSupHead(username);
+          })
+          .catch(() => setfeedbackCCSupHead(""));
+        } else {
+          setfeedbackCCSupHead("");
+        }
 
       } else if (helpdeskHeader.status === "PUBLISHED") {
         setContext("recipientFeedback");
@@ -544,20 +600,34 @@ export function ManageHelpdeskPage() {
 
       currentRole.length > 0 && (!["revision", "revision_info"].includes(context) || (context === "revision_info" && revisionFromGMG && currentRole === "publisher_dept_head") || (context === "revision" && (!revisionFromGMG || (revisionFromGMG && auth.scope?.username === publisherDeptHead))))
     }
-  }, [helpdeskHeader]);
+      
+  }, [helpdeskHeader,feedbackCCSupHead]);
 
-  useEffect(() => {
-    if (currentRole.length > 0 && currentRole !== "recipientPic") {
-      if (["revision", "revision_info"].includes(context))
-        setCommentEnabled((context === "revision_info" && revisionFromGMG && currentRole === "publisher_dept_head") || (context === "revision" && (!revisionFromGMG || (revisionFromGMG && auth.scope?.username === publisherDeptHead))));
-      else if (context === "reviewer" && noteFromGMG)
-        setCommentEnabled(auth.scope?.superior.substring(0, 4) === "MGMG" || auth.scope?.lvl === "MGR");
-      else
+
+    useEffect(() => {
+    /*   console.log("context current role change")
+       console.log("=== useEffect Triggered ===");
+      console.log("context:", context);
+      console.log("currentRole:", currentRole);
+      console.log("publisherDeptHead:", publisherDeptHead);
+      console.log("current user: " ,auth.scope?.username)  */
+
+      if (context.substring(0, 10) === "ccFeedback" && feedbackCCSupHead === auth.scope?.username) {
         setCommentEnabled(true);
-    } else {
-      setCommentEnabled(false);
-    }
-  }, [context, currentRole]);
+        return;
+      }
+   
+      if (currentRole.length > 0 && currentRole !== "recipientPic") {
+        if (["revision", "revision_info"].includes(context))
+          setCommentEnabled((context === "revision_info" && revisionFromGMG && currentRole === "publisher_dept_head") || (context === "revision" && (!revisionFromGMG || (revisionFromGMG && auth.scope?.username === publisherDeptHead))));
+        else if (context === "reviewer" && noteFromGMG)
+          setCommentEnabled(auth.scope?.superior.substring(0, 4) === "MGMG" || auth.scope?.lvl === "MGR");
+        else
+          setCommentEnabled(true);
+      } else {
+        setCommentEnabled(false);
+      }
+    }, [context, currentRole]);
   
   return (
     <motion.div
@@ -590,13 +660,14 @@ export function ManageHelpdeskPage() {
             <div className="h-full flex flex-col space-y-5 md:flex-row md:space-x-5 md:space-y-0">
               <HelpdeskInfoPanel ref={helpdeskInfoPanelRef} context={context} helpdeskHeader={helpdeskHeader} bagianList={bagianList} setPanelHeight={setHelpdeskInfoPanelHeight} showToast={showToast} />
 
-              <HelpdeskCcListPanel ref={helpdeskCcListPanelRef} context={context} currentRole={currentRole} existingCcList={helpdeskHeader.ccList} bagianList={bagianList} userList={userList} canReject={!temporaryJobRegStatus.find(status => status === "DONE")} isMobileSize={isMobileSize} infoPanelHeight={helpdeskInfoPanelHeight} downloadFile={downloadFile} showToast={showToast} />
+               <HelpdeskCcListPanel ref={helpdeskCcListPanelRef} context={context} currentRole={currentRole} existingCcList={helpdeskHeader.ccList} bagianList={bagianList} userList={userList} canReject={!temporaryJobRegStatus.find(status => status === "DONE")} isMobileSize={isMobileSize} infoPanelHeight={helpdeskInfoPanelHeight} downloadFile={downloadFile} showToast={showToast} />
+           
+           
             </div>
 
             <HelpdeskDetailsListPanel ref={helpdeskDetailsListPanelRef} context={context} currentRole={currentRole} nomor={helpdeskHeader.nomor} kepada={helpdeskHeader.kepada} existingDetailsList={allowedJobRegToShow} orderMasterList={orderMasterList} aktivaMasterList={aktivaMasterList} setTemporaryJobRegStatus={setTemporaryJobRegStatus} isMobileSize={isMobileSize} showToast={showToast} />
-
-            <HelpdeskFooterPanel ref={helpdeskFooterPanelRef} context={context} existingNoteList={helpdeskHeader.noteList} availableForMentionList={availableForMentionList} bagianList={bagianList} uploadedFile={helpdeskHeader.namaFileKepada.length > 0 ? new File([], helpdeskHeader.namaFileKepada) : undefined} submit={submitClicked} printFAB={printFab} printFSTB={printFstb} canGiveFeedback={currentRole === "recipient"} canComment={commentEnabled} canSubmit={currentRole.length > 0 && (context !== "revision_info" || (context === "revision_info" && (currentRole === "publisher" || (currentRole === "publisher_dept_head" && revisionFromGMG))))} canReopen={context === "doneCanReopen" && (["publisher", "recipient"].includes(mainRole) || mainRole.indexOf("cc") >= 0)} canSetDone={!temporaryJobRegStatus.find(status => status === "WAITING")} canSetRevision={temporaryJobRegStatus.find(status => status === "WAITING") !== undefined && !helpdeskHeader.noteList.find(note => note.comment.substring(0, 6) === "reopen")} canSetReject={!temporaryJobRegStatus.find(status => status === "DONE") && !helpdeskHeader.noteList.find(note => note.comment.substring(0, 6) === "reopen")} canPrintFab={mode === "info" && nomor !== undefined && nomor.length > 0}
-            canPrintFstb={mode === "info" && nomor !== undefined && nomor.length > 0 && (auth.scope?.username === helpdeskHeader.dari || auth.scope?.username.substring(0, 4) === helpdeskHeader.kepada) && helpdeskHeader.status === "PUBLISHED"} showToast={showToast} />
+                 <HelpdeskFooterPanel ref={helpdeskFooterPanelRef} context={context} existingNoteList={helpdeskHeader.noteList} availableForMentionList={availableForMentionList} bagianList={bagianList} uploadedFile={helpdeskHeader.namaFileKepada.length > 0 ? new File([], helpdeskHeader.namaFileKepada) : undefined} submit={submitClicked} printFAB={printFab} printFSTB={printFstb} canGiveFeedback={currentRole === "recipient" } canComment={commentEnabled || (context.substring(0, 10) === "ccFeedback" && feedbackCCSupHead === auth.scope?.username)} canSubmit={(currentRole.length > 0 && (context !== "revision_info" || (context === "revision_info" && (currentRole === "publisher" || (currentRole === "publisher_dept_head" && revisionFromGMG))))) || (context.substring(0, 10) === "ccFeedback" && feedbackCCSupHead === auth.scope?.username)} canReopen={context === "doneCanReopen" && (["publisher", "recipient"].includes(mainRole) || mainRole.indexOf("cc") >= 0)} canSetDone={!temporaryJobRegStatus.find(status => status === "WAITING")} canSetRevision={temporaryJobRegStatus.find(status => status === "WAITING") !== undefined && !helpdeskHeader.noteList.find(note => note.comment.substring(0, 6) === "reopen")} canSetReject={!temporaryJobRegStatus.find(status => status === "DONE") && !helpdeskHeader.noteList.find(note => note.comment.substring(0, 6) === "reopen")} canPrintFab={mode === "info" && nomor !== undefined && nomor.length > 0}
+           canPrintFstb={mode === "info" && nomor !== undefined && nomor.length > 0 && (auth.scope?.username === helpdeskHeader.dari || auth.scope?.username.substring(0, 4) === helpdeskHeader.kepada) && helpdeskHeader.status === "PUBLISHED"} showToast={showToast} />
           </div>
         }
       </div>

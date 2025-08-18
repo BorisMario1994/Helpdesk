@@ -14,6 +14,7 @@ export type HelpdeskCcListPanelRef = {
   retriveUpdatedCcData: () => HelpdeskCc;
 };
 
+
 type HelpdeskCcListPanelProps = {
   context: string;
   currentRole: string;
@@ -27,8 +28,10 @@ type HelpdeskCcListPanelProps = {
   showToast: (message: string) => void;
 };
 
-const HelpdeskCcListPanel = forwardRef<HelpdeskCcListPanelRef, HelpdeskCcListPanelProps>(({ context, currentRole, existingCcList, bagianList, userList, canReject = false, isMobileSize, infoPanelHeight, downloadFile, showToast } : HelpdeskCcListPanelProps, ref) => {
-  const auth = useAuth();
+
+
+const HelpdeskCcListPanel = forwardRef<HelpdeskCcListPanelRef, HelpdeskCcListPanelProps>(({ context, currentRole, existingCcList, bagianList, userList, canReject = false, isMobileSize, infoPanelHeight, downloadFile, showToast, feedbackCCSupHead } : HelpdeskCcListPanelProps, ref) => {
+const auth = useAuth();
   const [newCcList, setNewCcList] = useState<HelpdeskCc[]>([]);
   const [predefinedCcList, setPredefinedCcList] = useState<HelpdeskCc[]>([...existingCcList]);
   const ccPanel = useRef<HTMLDivElement>(null);
@@ -150,7 +153,7 @@ const HelpdeskCcListPanel = forwardRef<HelpdeskCcListPanelRef, HelpdeskCcListPan
             <ButtonLayout text="Add Approver" type="outline" colorClass="green-700" onClick={addNewCc} />  
           </div>
         </div>
-        <div className="w-full flex flex-col space-y-3 p-5">
+        <div className="w-full flex flex-col space-y-3 p-5"> 
           {
             predefinedCcList.map(cc => <HelpdeskCcLayout key={cc.linenum} cc={cc} bagianList={[...bagianList, ...userList.filter(user => ["MPBL", "SPBL", "MWGM", "MSSA", "JPJL"].includes(user.username.substring(0, 4)) && user.username.substring(4) !== "-01").map(user => new BagianMaster(user.username, "", true))]} setCc={updatePredefinedCc} removeCc={removePredefinedCc} downloadFile={downloadFile} canGiveFeedback={context === `ccFeedback${cc.linenum}` && currentRole === "cc"} canUpdate={context === `ccFeedback${cc.linenum}` && ["cc", "ccPic"].includes(currentRole)} canDelete={context === "revision" && cc.ac !== "APPROVE" && !(cc.linenum === 0 && (auth.scope?.lvl.length || 0) <= 0)} canReject={canReject} canRequestReview={context === `ccFeedback${cc.linenum}` && ["cc", "ccPic"].includes(currentRole) && !existingCcList.find(findCc => findCc.linenum !== cc.linenum && findCc.ac === "REQUESTING REVIEW")} showToast={showToast} />)
           }

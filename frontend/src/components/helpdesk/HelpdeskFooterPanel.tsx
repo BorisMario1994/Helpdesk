@@ -37,7 +37,32 @@ type HelpdeskFooterPanelProps = {
   showToast: (message: string) => void;
 };
 
-const HelpdeskFooterPanel = forwardRef<HelpdeskFooterPanelRef, HelpdeskFooterPanelProps>(({context, existingNoteList, availableForMentionList, bagianList, uploadedFile, submit, printFAB, printFSTB, canGiveFeedback = false, canComment = false, canSubmit = false, canReopen = false, canSetDone = false, canSetRevision = false, canSetReject = false, canPrintFab = false, canPrintFstb = false, showToast} : HelpdeskFooterPanelProps, ref) => {
+
+
+const HelpdeskFooterPanel = forwardRef<HelpdeskFooterPanelRef, HelpdeskFooterPanelProps>(
+  (props, ref) => {
+    console.log("HelpdeskFooterPanelProps:", props); // Logs everything
+
+    const {
+      context,
+      existingNoteList,
+      availableForMentionList,
+      bagianList,
+      uploadedFile,
+      submit,
+      printFAB,
+      printFSTB,
+      canGiveFeedback = false,
+      canComment = false,
+      canSubmit = false,
+      canReopen = false,
+      canSetDone = false,
+      canSetRevision = false,
+      canSetReject = false,
+      canPrintFab = false,
+      canPrintFstb = false,
+      showToast
+    } = props;
   const auth = useAuth();
   const dateFormatter = (date: Date) => formatInTimeZone(date, "Asia/Jakarta", "dd/MM/yyyy HH:mm:ss");
   
@@ -228,6 +253,7 @@ const HelpdeskFooterPanel = forwardRef<HelpdeskFooterPanelRef, HelpdeskFooterPan
           </Field>
         </div>
         <div className="flex flex-col gap-3">
+     
           <div className={`w-32 text-sm ${!canSubmit && !canReopen && "hidden"}`}>
             <ButtonLayout text={context === "revision_info" && !canComment ? "Revise Helpdesk" : context === "doneCanReopen" && canReopen ? "Reopen" : "SUBMIT"} type={context === "doneCanReopen" && canReopen ? "outline" : "solid"} colorClass={context === "doneCanReopen" && canReopen ? "red-500" : "green-700"} onClick={submit} />
           </div>

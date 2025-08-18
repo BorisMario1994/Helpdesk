@@ -36,6 +36,8 @@ class User {
   // which username is passed on the parameter.
   static getUserDeptHead = async (username: string) => (await api.apiInstance.get(`/users/${username}/dept-head`)).data.user as string;
 
+  static getUserSupHead = async (username: string) => (await api.apiInstance.get(`/users/${username}/sup-head`)).data.user as string;
+
   // Method to send POST request to backend to create a new User record in database. 
   createUserData = async () => api.apiInstance.post("/users", { data: this });
 

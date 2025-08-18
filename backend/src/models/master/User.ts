@@ -122,6 +122,11 @@ class User {
     return result[0].DeptHead as string;
   }
 
+  static getUserSupHead = async (username: string) => {
+    const result: any[] = await prisma.$queryRaw`SELECT [dbo].[EF_GET_SUPERIOR_HEAD](${username}) SuperiorHead`;
+    return result[0].SuperiorHead as string;
+  }
+
   // Method to create new User data in database by using current User object instance.
   createUser = async () => {
     let salt = "";

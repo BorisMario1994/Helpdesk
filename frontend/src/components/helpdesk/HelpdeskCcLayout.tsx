@@ -7,6 +7,7 @@ import { ButtonLayout } from "../common/ButtonLayout";
 import { InputFieldLayout } from "../common/InputFieldLayout";
 import BagianMaster from "../../models/master/BagianMaster";
 import HelpdeskCc from "../../models/helpdesk/HelpdeskCc";
+import User from "../../models/master/User";
 
 type Props = {
   cc: HelpdeskCc;
@@ -23,7 +24,10 @@ type Props = {
   showToast?: (message: string) => void;
 };
 
+
 export function HelpdeskCcLayout({ cc, bagianList, setCc = (_: number, __: HelpdeskCc) => {  }, removeCc = (_: number) => {  }, downloadFile = async (_: string) => {  }, existing = true, canGiveFeedback = false, canUpdate = false, canDelete = false, canReject = false, canRequestReview = false, showToast = (_: string) => {  } }: Props) {
+  //console.log("cc : ",cc)
+  //console.log("ac : ",cc.pic )
   const auth = useAuth();
   const ccDetailsDrawer = useRef<HTMLDivElement>(null);
   const [ccDetailsDrawerOpen, setCcDetailsDrawerOpen] = useState(false);
@@ -34,9 +38,57 @@ export function HelpdeskCcLayout({ cc, bagianList, setCc = (_: number, __: Helpd
   const [selectedFile, setSelectedFile] = useState<File | undefined>(cc.namaFile.length > 0 ? new File([], cc.namaFile) : undefined);
   const uploadFileInput = useRef<HTMLInputElement>(null);
 
+  const [feedbackCCSupHead, setfeedbackCCSupHead] = useState("");
+  const [canGiveFeedbackState, setCanGiveFeedbackState] = useState(canGiveFeedback);
+
+  
+  useEffect(() => {
+ //   console.log("cc.pic raw value:", cc.pic, "length:", cc.pic?.length);
+    if (!cc.pic || cc.pic.trim().length === 0) {
+      const fallbackHead = cc.cc; // or auth.scope?.username if that's the fallback
+      setfeedbackCCSupHead(fallbackHead);
+  
+      const newCanGiveFeedback = canGiveFeedback; // keep or replace with your condition
+      setCanGiveFeedbackState(newCanGiveFeedback);
+  
+     // console.log("Immediate (no pic) → head:", fallbackHead, "canGiveFeedback:", newCanGiveFeedback);
+      return;
+    }
+  
+    User.getUserSupHead(cc.pic)
+      .then(username => {
+        // Set both pieces of state
+        setfeedbackCCSupHead(username);
+        const newCanGiveFeedback = username === auth.scope?.username;
+        setCanGiveFeedbackState(newCanGiveFeedback);
+  
+        // Immediate debug log
+       // console.log("Fetched sup head:", username);
+       // console.log("Immediate canGiveFeedback:", newCanGiveFeedback);
+      })
+      .catch(() => {
+        setfeedbackCCSupHead("");
+        setCanGiveFeedbackState(false);
+      //  console.log("Fetch failed → reset head + feedback permissions");
+      });
+  }, [cc.cc]);
+
+/* 
+ console.log("cc : ",cc.cc)
+  console.log("head dari cc : ",feedbackCCSupHead)
+  console.log("cc pic :" ,cc.pic)
+  console.log("impersonate : " ,auth.scope?.username)
+  console.log("fetch sup head : ",feedbackCCSupHead)
+  console.log("cangivefeedbackstat : " ,canGiveFeedbackState)
+  console.log("cangivefeedback : " ,canGiveFeedback)
+  console.log("action : ",cc.ac)  */
+
   useEffect(() => {
     const updatedCc = new HelpdeskCc(cc.linenum, selectedCc === "Choose approver" ? "" : selectedCc, selectedAc, cc.tanggalAc, cc.pic, selectedFile ?? new File([], ""), selectedFile && selectedFile.size > 0 ? selectedFile.name : (selectedFile?.name.length || 0) > 0 ? cc.namaFile : "");
     setCc(cc.linenum, updatedCc);
+    //console.log("cc pic : ",cc.pic)
+
+
   }, [selectedCc, selectedAc, selectedFile]);
 
   useEffect(() => {
@@ -79,7 +131,7 @@ export function HelpdeskCcLayout({ cc, bagianList, setCc = (_: number, __: Helpd
         {
           canDelete ?
           <div className="grow-1 overflow-hidden">
-            <InputFieldLayout type="select" id={`selectCc${cc.linenum}`} options={bagianList.filter(bagian => bagian.isActive).map(bagian => `${bagian.code}${bagian.descrption.length > 0 ? (" - " + bagian.descrption) : ""}`)} value={selectedCc} enabled={canDelete} onSelectChange={setSelectedCc} additionalClass="w-full" />
+          <InputFieldLayout type="select" id={`selectCc${cc.linenum}`} options={bagianList.filter(bagian => bagian.isActive).map(bagian => `${bagian.code}${bagian.descrption.length > 0 ? (" - " + bagian.descrption) : ""}`)} value={selectedCc} enabled={canDelete} onSelectChange={setSelectedCc} additionalClass="w-full" />
           </div> :
           <p className="font-semibold">{cc.cc.concat((bagianList.find(ccFind => ccFind.code === cc.cc)?.descrption.length || 0) > 0 ? (" - " + bagianList.find(ccFind => ccFind.code === cc.cc)?.descrption) : "")}</p>
         }
@@ -89,13 +141,15 @@ export function HelpdeskCcLayout({ cc, bagianList, setCc = (_: number, __: Helpd
             <ButtonLayout text="Remove" type="text" colorClass="red-500" onClick={() => removeCc(cc.linenum)} />
           </div>
         </div>
+        
       </div>
       <div className={`${!canUpdate && "hidden"} absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 rounded-full`}></div>
       <div ref={ccDetailsDrawer} className={`transition-all duration-300 ease-in-out overflow-hidden ${ccDetailsDrawerOpen ? "opacity-100" : "opacity-0"}`} style={{ maxHeight: ccDetailsDrawerMaxHeight }}>
         <div className="flex justify-between items-center mt-2">
           <p className="text-sm text-gray-500">Feedback</p>
-          <p className={`${canGiveFeedback ? "hidden" : ""} text-sm ${cc.ac === "APPROVE" ? "text-green-700" : cc.ac === "REVISION" ? "text-yellow-500" : cc.ac === "REJECT" ? "text-red-500" : "text-gray-800"} font-semibold`}>{cc.ac}</p>
-          <InputFieldLayout id="feedbackInput" type="select" options={["APPROVE", "REVISION"].concat(canReject ? ["REJECT"] : []).concat(canRequestReview ? ["REQUESTING REVIEW"] : []).concat(auth.scope?.inferior || [])} value={selectedAc} onSelectChange={setSelectedAc} additionalClass={`${canGiveFeedback ? "w-48" : "hidden"}`} />
+          <p className={`${canGiveFeedbackState  ? "hidden" : ""} text-sm ${cc.ac === "APPROVE" ? "text-green-700" : cc.ac === "REVISION" ? "text-yellow-500" : cc.ac === "REJECT" ? "text-red-500" : "text-gray-800"} font-semibold`}>{cc.ac}</p>
+         
+          <InputFieldLayout id="feedbackInput" type="select" options={["APPROVE", "REVISION"].concat(canReject ? ["REJECT"] : []).concat(canRequestReview ? ["REQUESTING REVIEW"] : []).concat(auth.scope?.inferior || [])} value={selectedAc} onSelectChange={setSelectedAc} additionalClass={`${canGiveFeedbackState  ? "w-48" : "hidden"}`} />
         </div>
         <div className="flex justify-between mt-2">
           <p className="text-sm text-gray-500">Feedback Date</p>
@@ -103,7 +157,7 @@ export function HelpdeskCcLayout({ cc, bagianList, setCc = (_: number, __: Helpd
         </div>
         <div className="flex justify-between mt-2">
           <p className="text-sm text-gray-500">PIC</p>
-          <p className="text-sm font-semibold">{cc.pic.length > 0 ? cc.pic : "-"}</p>
+          <p className="text-sm font-semibold"> {cc.pic.length > 0 ? cc.pic : "-"} </p>
         </div>
         <div className="flex flex-col justify-between mt-2">
           <p className="text-sm text-gray-500">Approver's Attachment</p>

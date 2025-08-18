@@ -31,12 +31,34 @@ class HelpdeskNotifModel {
   };
 
   // Method for inserting many Helpdesk Notif data at once to database table.
-  static bulkInsertNotif = async (nomor: string, notifList: HelpdeskNotifModel[], tx?: Prisma.TransactionClient) => {
+/*   static bulkInsertNotif = async (nomor: string, notifList: HelpdeskNotifModel[], tx?: Prisma.TransactionClient) => {
     const client = tx ?? prisma;
     return client.helpdeskNotif.createMany({
       data: notifList.map(notif => notif.createAsType(nomor))
     });
   };
+ */
+
+  static bulkInsertNotif = async (nomor: string, notifList: HelpdeskNotifModel[], tx?: Prisma.TransactionClient) => {
+    const client = tx ?? prisma;
+  
+    // Remove duplicates based on Nomor + Username
+    const uniqueMap = new Map<string, HelpdeskNotif>();
+    notifList.forEach(notif => {
+      const key = `${nomor}-${notif.username}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, notif.createAsType(nomor));
+      }
+    });
+  
+    const uniqueData = Array.from(uniqueMap.values());
+  
+    return client.helpdeskNotif.createMany({
+      data: uniqueData
+    });
+  };
+  
+
 
   // Method for deleting many Helpdesk Notif data at once from database table.
   static bulkDeleteNotif = async (nomor: string, tx?: Prisma.TransactionClient) => {

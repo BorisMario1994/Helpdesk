@@ -136,7 +136,8 @@ export function HelpdeskDetailsLayout({ details, remarks = "", orderMasterList, 
           <p className="text-sm text-gray-500">No. Aktiva</p>
           <p className={`text-sm ${canUpdateStatus && "hidden"}`}>{details.noAktiva.length <= 0 ? "-" : details.noAktiva}</p>
         </div>
-        <InputFieldLayout label="No. Aktiva" type="select" id="selectNoAktiva" options={aktivaMasterList.map(aktiva => `${aktiva.kodeAktiva} - ${aktiva.descrption}`)} value={selectedNoAktiva} onSelectChange={setSelectedNoAktiva} additionalClass={`${!canUpdateStatus && "hidden"}`} />
+        <InputFieldLayout label="No. Aktiva" type="select" id="selectNoAktiva" options={["Select one aktiva code (optional)", ...aktivaMasterList.map(aktiva => `${aktiva.kodeAktiva} - ${aktiva.descrption}`)]} value={selectedNoAktiva} onSelectChange={setSelectedNoAktiva} additionalClass={`${!canUpdateStatus && "hidden"}`} />
+       
       </div>
       
       <div className={`w-24 text-sm ${!canSplit && "hidden"}`}>
