@@ -71,17 +71,17 @@ export function HelpdeskCcLayout({ cc, bagianList, setCc = (_: number, __: Helpd
         setCanGiveFeedbackState(false);
       //  console.log("Fetch failed → reset head + feedback permissions");
       });
-  }, [cc.cc]);
+  }, [cc.cc,feedbackCCSupHead]);
 
-/* 
- console.log("cc : ",cc.cc)
+
+/*  console.log("cc : ",cc.cc)
   console.log("head dari cc : ",feedbackCCSupHead)
   console.log("cc pic :" ,cc.pic)
   console.log("impersonate : " ,auth.scope?.username)
   console.log("fetch sup head : ",feedbackCCSupHead)
   console.log("cangivefeedbackstat : " ,canGiveFeedbackState)
   console.log("cangivefeedback : " ,canGiveFeedback)
-  console.log("action : ",cc.ac)  */
+  console.log("action : ",cc.ac)   */
 
   useEffect(() => {
     const updatedCc = new HelpdeskCc(cc.linenum, selectedCc === "Choose approver" ? "" : selectedCc, selectedAc, cc.tanggalAc, cc.pic, selectedFile ?? new File([], ""), selectedFile && selectedFile.size > 0 ? selectedFile.name : (selectedFile?.name.length || 0) > 0 ? cc.namaFile : "");

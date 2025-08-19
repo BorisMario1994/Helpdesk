@@ -549,8 +549,8 @@ export function ManageHelpdeskPage() {
         const lastRequestReviewMentions = requestReviewNoteList.length > 0 ? requestReviewNoteList[requestReviewNoteList.length - 1].mentions.map(mention => mention.length === 4 ? mention.concat("-01") : mention) : [];
 
         setContext(`ccFeedback${helpdeskCcCurrentIndex?.linenum}`);
-    /*     console.log(feedbackCCSupHead)
-        console.log( "a : " ,helpdeskHeader.ccList.find(d => d.linenum === helpdeskCcCurrentIndex?.linenum)?.cc.concat("-01")) */
+      //  console.log(feedbackCCSupHead)
+      //  console.log( "a : " ,helpdeskHeader.ccList.find(d => d.linenum === helpdeskCcCurrentIndex?.linenum)?.cc.concat("-01")) 
         //setCurrentRole([helpdeskCcCurrentIndex?.cc.concat("-01"), helpdeskCcCurrentIndex?.cc].includes(auth.scope?.username) && ["NO ACTION", "REQUESTING REVIEW"].includes(helpdeskCcCurrentIndex?.ac || "") ? "cc" : helpdeskCcCurrentIndex?.ac === auth.scope?.username ? "ccPic" : helpdeskHeader.ccList.find(cc => cc.ac === "REQUESTING REVIEW") && (lastRequestReviewMentions.includes(auth.scope?.username || "")) ? "reviewer" : "");
         
 setCurrentRole(
@@ -578,7 +578,7 @@ setCurrentRole(
         if (helpdeskCcCurrentIndex?.pic && helpdeskCcCurrentIndex.pic.length > 0) {
           User.getUserSupHead(helpdeskCcCurrentIndex.pic)
           .then(username => {
-            //console.log("Fetched Sup head:", username);
+        //    console.log("Fetched Sup head:", username);
             setfeedbackCCSupHead(username);
           })
           .catch(() => setfeedbackCCSupHead(""));
@@ -605,12 +605,12 @@ setCurrentRole(
 
 
     useEffect(() => {
-    /*   console.log("context current role change")
+   /*     console.log("context current role change")
        console.log("=== useEffect Triggered ===");
       console.log("context:", context);
       console.log("currentRole:", currentRole);
       console.log("publisherDeptHead:", publisherDeptHead);
-      console.log("current user: " ,auth.scope?.username)  */
+      console.log("current user: " ,auth.scope?.username)   */
 
       if (context.substring(0, 10) === "ccFeedback" && feedbackCCSupHead === auth.scope?.username) {
         setCommentEnabled(true);
