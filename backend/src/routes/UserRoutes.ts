@@ -49,6 +49,17 @@ userRouter.get("/:username/sup-head", async (req, res) => {
 	}
 });
 
+
+userRouter.get("/:username/user-tree", async (req, res) => {
+	try {
+		const usertree = await UserController.getUserTree(req.params.username);
+		res.status(200).send({ user: usertree });
+	} catch(err) {
+		console.error(err);
+		res.status(500).send({ success: false, name: "InternalServerError", message: "Failed on retrieving User Superior Head data." });
+	}
+});
+
 // Route to create new User data. 
 userRouter.post("/", async (req, res) => {
 	try {

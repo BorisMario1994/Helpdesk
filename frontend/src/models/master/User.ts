@@ -28,7 +28,7 @@ class User {
   };
 
   static getUserListAdjustedSuperior = async () => {
-    const userListData = await api.apiInstance.get("/users/adjusted-superior");
+    const userListData = await api.apiInstance.get(`/users/adjusted-superior`);
     return userListData.data;
   };
 
@@ -37,6 +37,8 @@ class User {
   static getUserDeptHead = async (username: string) => (await api.apiInstance.get(`/users/${username}/dept-head`)).data.user as string;
 
   static getUserSupHead = async (username: string) => (await api.apiInstance.get(`/users/${username}/sup-head`)).data.user as string;
+
+  static getUserTree = async (username: string) => (await api.apiInstance.get(`/users/${username}/user-tree`)).data.user as string;
 
   // Method to send POST request to backend to create a new User record in database. 
   createUserData = async () => api.apiInstance.post("/users", { data: this });

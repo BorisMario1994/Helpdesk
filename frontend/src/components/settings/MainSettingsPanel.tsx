@@ -17,10 +17,12 @@ export function MainSettingsPanel({ traverseForward }: { traverseForward: (path:
   useEffect(() => {
     const getInferiorList = async () => {
       try {
-        const userList = await User.getUserListAdjustedSuperior() as User[];
-        setInferiorList(userList.filter(user => user.superior === auth.user?.username && user.isActive).map(user => user.username));
+        //console.log(auth.user.username)
+        let loguser = auth.user.username
+        const userList = await User.getUserTree(loguser) as User[];
+        setInferiorList(userList.filter(user =>  user.isActive).map(user => user.username));
         if (auth.user?.inferior)
-          auth.user.inferior = userList.filter(user => user.superior === auth.user?.username && user.isActive).map(user => user.username);
+          auth.user.inferior = userList.filter(user =>user.isActive).map(user => user.username);
 
       } catch(err: any) {
         switch (err.response.data.name) {

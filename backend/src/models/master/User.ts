@@ -112,7 +112,7 @@ class User {
   };
 
   static getUserListAdjustedSuperior = async () => {
-    const getUserListQuery = await prisma.$queryRaw`EXEC [dbo].[EF_GET_USER_TREE]` as HelpdeskUser[];
+    const getUserListQuery = await prisma.$queryRaw`[dbo].[EF_GET_USER_TREE]` as HelpdeskUser[];
     return getUserListQuery.map((user) => User.createFromType(user));
   }
 
@@ -126,6 +126,16 @@ class User {
     const result: any[] = await prisma.$queryRaw`SELECT [dbo].[EF_GET_SUPERIOR_HEAD](${username}) SuperiorHead`;
     return result[0].SuperiorHead as string;
   }
+
+  static getUserTree = async (username: string): Promise<User[]> => {
+    const result = await prisma.$queryRaw<HelpdeskUser[]>`
+      EXEC [dbo].[BM_POPULATEINFERIOR] ${username}
+    `;
+    
+    return result.map(user => User.createFromType(user));
+  };
+
+
 
   // Method to create new User data in database by using current User object instance.
   createUser = async () => {

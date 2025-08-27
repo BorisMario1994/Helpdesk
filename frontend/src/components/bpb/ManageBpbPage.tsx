@@ -77,7 +77,7 @@ export function ManageBpbPage() {
       setIsLoading(true);
       if (!auth.accessToken)
         await auth.refresh();
-
+  
       setUserList(await User.getUserListAdjustedSuperior());
       setBagianList(await BagianMaster.getBagianMasterList());
       setBPList(await BPMaster.getBPMasterList());
