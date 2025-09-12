@@ -18,11 +18,11 @@ export function MainSettingsPanel({ traverseForward }: { traverseForward: (path:
     const getInferiorList = async () => {
       try {
         //console.log(auth.user.username)
-        let loguser = auth.user.username
+        let loguser = auth.user?.username
         const userList = await User.getUserTree(loguser) as User[];
-        setInferiorList(userList.filter(user =>  user.isActive).map(user => user.username));
+        setInferiorList(userList.filter(user =>  user.isActive && user.username !== auth.user?.username).map(user => user.username));
         if (auth.user?.inferior)
-          auth.user.inferior = userList.filter(user =>user.isActive).map(user => user.username);
+          auth.user.inferior = userList.filter(user =>user.isActive && user.username !== auth.user?.username).map(user => user.username);
 
       } catch(err: any) {
         switch (err.response.data.name) {

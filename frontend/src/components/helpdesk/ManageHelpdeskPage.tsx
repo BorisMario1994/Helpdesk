@@ -471,14 +471,48 @@ export function ManageHelpdeskPage() {
     return HelpdeskHeader.updateJobRegistration(helpdeskHeader.nomor, newDetailsList);
   };
 
-  const printFab = async () => {
+function getSimpleCode(input, length = 6) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Base36 (easy & readable)
 
-    window.open(`http://192.168.52.34/REPORTS/report/Data%20Sources/REPORT/HELPDESK?rs:Command=Render&NOMOR=${helpdeskHeader.nomor}`, "_blank");
-  };
+  // Simple hash (FNV-1a 32-bit)
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
 
-  const printFstb = async () => {
-    window.open(`http://192.168.52.34/REPORTS/report/Data%20Sources/REPORT/FSTB?rs:Command=Render&NOMOR=${helpdeskHeader.nomor}`, "_blank");
-  };
+  // Convert hash -> base36 code
+  let num = hash >>> 0; // unsigned
+  let out = "";
+  for (let i = 0; i < length; i++) {
+    out = chars[num % chars.length] + out;
+    num = Math.floor(num / chars.length);
+  }
+  return out;
+}
+
+
+
+// example usage in your existing functions
+const printFab = async () => {
+  const uniq = await getSimpleCode(helpdeskHeader.nomor, 6); // deterministic from NOMOR
+  console.log(helpdeskHeader.nomor + ' ' + uniq)
+  const url = "http://192.168.52.34/REPORTS/report/Data%20Sources/REPORT/HELPDESK2"
+    + "?rs:Command=Render"
+    + "&NOMOR=" + encodeURIComponent(helpdeskHeader.nomor)
+    + "&UNIQ=" + encodeURIComponent(uniq);
+  window.open(url, "_blank");
+};
+
+const printFstb = async () => {
+  const uniq = await getSimpleCode(helpdeskHeader.nomor, 6); // same deterministic code
+  const url = "http://192.168.52.34/REPORTS/report/Data%20Sources/REPORT/FSTB2"
+    + "?rs:Command=Render"
+    + "&NOMOR=" + encodeURIComponent(helpdeskHeader.nomor)
+    + "&UNIQ=" + encodeURIComponent(uniq);
+  window.open(url, "_blank");
+};
+
 
   const showToast = (message: string) => {
     setToastMessage(message);
