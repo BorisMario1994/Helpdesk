@@ -279,6 +279,7 @@ const HelpdeskDetailsListPanel = forwardRef<HelpdeskDetailsListPanelRef, Helpdes
                       </DialogPanel>
                     </div>
                   </div>
+                  
                 </Dialog> :
                 <div className="h-full flex flex-col grow-1 space-y-2 p-5 border border-gray-300 rounded-md shadow-md overflow-auto">
                   <HelpdeskDetailsLayout details={detailsList.find(details => details.linenum === detailsActiveLinenum)!} remarks={remarksList[detailsList.indexOf(detailsList.find(details => details.linenum === detailsActiveLinenum)!)]} orderMasterList={orderMasterList} aktivaMasterList={aktivaMasterList} view="details" setDetails={updateDetails} setRemarks={updateRemarks} splitDetails={confirmSplitJobReg} canUpdateJobReg={context === "recipientFeedback" && currentRole === "recipient"} canUpdateStatus={context === "recipientFeedback" && ["recipient", "recipientPic"].includes(currentRole)} canSplit={context === "recipientFeedback" && currentRole === "recipient"} />

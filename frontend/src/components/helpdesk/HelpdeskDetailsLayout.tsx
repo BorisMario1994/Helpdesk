@@ -30,12 +30,13 @@ export function HelpdeskDetailsLayout({ details, remarks = "", orderMasterList, 
   const auth = useAuth();
   const dateFormatter = (date: Date) => formatInTimeZone(date, "Asia/Jakarta", "EEEE, d MMMM yyyy HH:mm:ss");
   const shortDateFormatter = (date: Date) => formatInTimeZone(date, "Asia/Jakarta", "dd/MM/yyyy HH:mm:ss");
-  
+  //console.log("ini aktivanya : " , details.noAktiva)
   const remarksInput = useRef<HTMLInputElement>(null);
   const tsDateInput = useRef<HTMLInputElement>(null);
   const noteContainerRef = useRef<HTMLDivElement>(null);
   const [selectedPic, setSelectedPic] = useState(details.pic);
   const [selectedNoAktiva, setSelectedNoAktiva] = useState(details.noAktiva.length > 0 ? details.noAktiva : "Select one aktiva code (optional)");
+  //console.log(selectedNoAktiva)
   const [statusIsDone, setStatusIsDone] = useState(details.status === "DONE");
 
   const updateDetails = () => {
@@ -58,14 +59,19 @@ export function HelpdeskDetailsLayout({ details, remarks = "", orderMasterList, 
     return () => clearTimeout(timeout);
   }, [details.noteList]); // Run this whenever messages change
 
+  
   useEffect(() => {
-    if (remarksInput.current)
-      remarksInput.current.value = remarks;
-    if (tsDateInput.current)
-      tsDateInput.current.value = details.ts.getFullYear() === 1900 ? "dd/MM/yyyy" : `${details.ts.getFullYear()}-${(details.ts.getMonth() + 1).toString().padStart(2, "0")}-${details.ts.getDate().toString().padStart(2, "0")}`;
-    setSelectedPic(details.pic);
-    setStatusIsDone(details.status === "DONE");
-  }, [details]);
+  if (remarksInput.current)
+    remarksInput.current.value = remarks;
+  if (tsDateInput.current)
+    tsDateInput.current.value = details.ts.getFullYear() === 1900
+      ? "dd/MM/yyyy"
+      : `${details.ts.getFullYear()}-${(details.ts.getMonth() + 1).toString().padStart(2, "0")}-${details.ts.getDate().toString().padStart(2, "0")}`;
+
+  setSelectedPic(details.pic);
+  setStatusIsDone(details.status === "DONE");
+  setSelectedNoAktiva(details.noAktiva.length > 0 ? details.noAktiva : "Select one aktiva code (optional)"); // <-- add this
+}, [details]);
 
   useEffect(() => {
     updateDetails();
@@ -132,6 +138,7 @@ export function HelpdeskDetailsLayout({ details, remarks = "", orderMasterList, 
         </div>
       </div>
       <div>
+        
         <div className={`flex justify-between ${canUpdateStatus && "hidden"}`}>
           <p className="text-sm text-gray-500">No. Aktiva</p>
           <p className={`text-sm ${canUpdateStatus && "hidden"}`}>{details.noAktiva.length <= 0 ? "-" : details.noAktiva}</p>
